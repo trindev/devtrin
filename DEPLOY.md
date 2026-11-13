@@ -45,7 +45,11 @@ DirectAdmin ล็อก document root ของโดเมนหลักไ�
    - ถ้ายังมีโฟลเดอร์ที่ต้องเปิดผ่าน `devtrin.com/<ชื่อโฟลเดอร์>` ให้เพิ่มชื่อลงในบรรทัด `REQUEST_URI` ของไฟล์นี้
      (ตอนนี้ยกเว้น `me`, `linepic`, `webmail`, `cgi-bin`, `.well-known` และไฟล์ยืนยัน Google ไว้แล้ว)
 
-6. **รัน migration และสร้าง admin** — ใช้ Terminal ของ host ถ้ามี หรือตั้ง Cron Job ให้รันครั้งเดียวแล้วลบออก
+6. **รัน migration และสร้าง admin**
+   - **ไม่มี Terminal/Cron (host ปัจจุบัน):** เปิดในเบราว์เซอร์
+     `https://devtrin.com/recover.php?key=<MAINTENANCE_TOKEN>&action=setup&email=you@example.com`
+     จะ migrate + ใส่โปรเจกต์ตั้งต้น + สร้าง admin แล้วแสดงรหัสผ่านสุ่ม**ครั้งเดียว** (รันซ้ำได้ ไม่รีเซ็ตรหัสเดิม)
+   - **ถ้ามี Terminal:**
    ```bash
    cd ~/domains/devtrin.com/public_html/devtrin && php artisan migrate --force --seed
    php artisan devtrin:make-admin you@example.com --name="Trin"

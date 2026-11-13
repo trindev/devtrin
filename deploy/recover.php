@@ -11,6 +11,8 @@
  *   (ไม่ใส่ action)   ตรวจอย่างเดียว — ไฟล์หาย/เนื้อหาไม่ตรง CHECKSUMS.json
  *   &action=diagnose  บูต Laravel แล้วแสดง error จริง (ใช้เมื่อไฟล์ครบแต่ทุกหน้า 500)
  *   &action=clear     ล้าง bootstrap/cache + compiled views + OPcache (OPcache ของ host เคยเสียจนโค้ดเพี้ยน)
+ *   &action=setup     ติดตั้งครั้งแรกบน host ที่ไม่มี SSH/cron: migrate + ใส่โปรเจกต์ตั้งต้น (ถ้ายังว่าง)
+ *                     + &email=you@example.com สร้าง admin และแสดงรหัสผ่านสุ่มครั้งเดียว (รันซ้ำได้ ไม่รีเซ็ตรหัสของ admin เดิม)
  *   &action=install   ติดตั้ง release ล่าสุดจาก GitHub ใหม่ทั้งชุด (หรือ &tag=v1.0.10 เพื่อเลือกเวอร์ชัน;
  *                     ถ้าวางไฟล์ devtrin-*.zip ไว้ที่โฟลเดอร์โปรเจกต์ จะใช้ไฟล์นั้นแทนการดาวน์โหลด)
  * เวอร์ชันก่อน v1.0.11 ไม่มีไฟล์นี้ — อัปโหลด deploy/recover.php ไปที่ <โปรเจกต์>/public/recover.php
@@ -52,6 +54,11 @@ if (count($problems) > 20) {
 
 if ($action === 'diagnose') {
     diagnose($base);
+    exit;
+}
+
+if ($action === 'setup') {
+    setup($base, trim((string) ($_GET['email'] ?? '')));
     exit;
 }
 
@@ -172,6 +179,63 @@ function diagnose(string $base): void
         } elseif ($response->getStatusCode() < 400) {
             say('บูตได้ปกติจากสคริปต์นี้ — ถ้าหน้าเว็บยัง 500 ลอง &action=clear (OPcache ของเว็บอาจค้างโค้ดเสีย)');
         }
+    } catch (Throwable $e) {
+        describe($e);
+    }
+}
+
+function setup(string $base, string $email): void
+{
+    say('');
+    say('== ติดตั้ง / migrate ==');
+    try {
+        require "{$base}/vendor/autoload.php";
+        $app = require "{$base}/bootstrap/app.php";
+        $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+        $kernel->bootstrap();
+        $run = function (string $command, array $args = []) use ($kernel): int {
+            $code = $kernel->call($command, $args);
+            $output = trim(preg_replace(['/\e\[[\d;]*m/', '/\s*\.{3,}\s*/'], ['', ' … '], $kernel->output()));
+            say("$ php artisan {$command}".($code === 0 ? '' : " (exit {$code})"));
+            foreach (explode("\n", $output) as $line) {
+                if (trim($line) !== '') {
+                    say('  '.trim($line));
+                }
+            }
+
+            return $code;
+        };
+
+        if ($run('migrate', ['--force' => true]) !== 0) {
+            say('migrate ไม่สำเร็จ — ตรวจค่า DB_* ใน .env');
+
+            return;
+        }
+
+        // ใส่โปรเจกต์ตั้งต้นเฉพาะตอนตารางยังว่าง — ไม่ให้โปรเจกต์ที่ลบไปแล้วกลับมา
+        if (Illuminate\Support\Facades\DB::table('projects')->count() === 0) {
+            $run('db:seed', ['--force' => true]);
+        } else {
+            say('มีโปรเจกต์อยู่แล้ว — ข้ามการ seed');
+        }
+
+        if ($email === '') {
+            say('');
+            say('ยังไม่ได้สร้าง admin — เติม &email=อีเมลของคุณ ต่อท้าย URL แล้วเปิดอีกครั้ง');
+        } elseif (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            say("อีเมลไม่ถูกต้อง: {$email}");
+        } elseif (App\Models\User::where('email', strtolower($email))->where('is_admin', true)->exists()) {
+            say('');
+            say("{$email} เป็น admin อยู่แล้ว — ไม่เปลี่ยนรหัสผ่าน (ลืมรหัส: ให้ admin คนอื่นเปลี่ยนให้ หรือลบ user นี้ใน phpMyAdmin แล้วรันใหม่)");
+        } else {
+            say('');
+            $run('devtrin:make-admin', ['email' => $email]);
+            say('จดรหัสผ่านไว้ แล้วเปลี่ยนที่ /admin/account — หน้านี้จะไม่แสดงรหัสเดิมอีก');
+        }
+
+        $run('optimize:clear');
+        say('');
+        say('เสร็จแล้ว ✓  ต่อไป: เข้า /admin/login แล้วไปที่ /_maintenance กด "Cache config/route/view"');
     } catch (Throwable $e) {
         describe($e);
     }
