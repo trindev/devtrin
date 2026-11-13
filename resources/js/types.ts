@@ -39,10 +39,21 @@ export type SiteSettings = Record<
 >;
 
 export interface SharedProps {
-    auth: { user: { id: number; name: string; email: string; is_admin: boolean } | null };
+    auth: { user: { id: number; name: string; email: string; avatar: string | null; is_admin: boolean } | null };
+    google: boolean;
+    push: string | null;
+    adminBadges: { chat: number } | null;
     site: SiteSettings;
     flash: { success: string | null; error: string | null };
     app: { version: string };
     errors: Record<string, string>;
     [key: string]: unknown;
+}
+
+export interface ChatMessage {
+    id: number;
+    body: string;
+    from_admin: boolean;
+    sender: string | null;
+    at: string;
 }

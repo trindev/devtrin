@@ -10,6 +10,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0a0a0b">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>
         // ตั้งธีมและขนาดตัวอักษรก่อนวาดหน้า กันจอกระพริบ (ค่าเดียวกับ resources/js/lib/prefs.ts)
         (function () {

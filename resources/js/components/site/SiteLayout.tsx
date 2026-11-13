@@ -3,11 +3,12 @@ import type { SharedProps } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { ArrowUpRight } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import ChatWidget from './ChatWidget';
 import Magnetic from './Magnetic';
 import DisplayControls from '@/components/DisplayControls';
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
-    const { site, auth } = usePage<SharedProps>().props;
+    const { site, auth, flash } = usePage<SharedProps>().props;
     const nav = useRef<HTMLElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -108,6 +109,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             </header>
 
             <main id="main">{children}</main>
+
+            <ChatWidget />
+            <SiteFlash text={flash.error || flash.success} />
 
             <footer className="border-t border-paper/10">
                 <div className="mx-auto flex max-w-[1400px] flex-col gap-4 px-4 py-8 text-sm text-mute md:flex-row md:items-center md:px-8">
@@ -214,5 +218,22 @@ export function ContactSection() {
                 )}
             </div>
         </section>
+    );
+}
+
+/** ข้อความแจ้งสั้น ๆ (เช่น login Google ไม่สำเร็จ) — หายเองใน 5 วินาที */
+function SiteFlash({ text }: { text: string | null }) {
+    const [shown, setShown] = useState(text);
+    useEffect(() => {
+        setShown(text);
+        if (!text) return;
+        const t = setTimeout(() => setShown(null), 5000);
+        return () => clearTimeout(t);
+    }, [text]);
+    if (!shown) return null;
+    return (
+        <p role="status" className="fixed top-20 left-1/2 z-50 max-w-[90vw] -translate-x-1/2 rounded-full bg-paper px-5 py-2.5 text-center text-sm font-medium text-ink shadow-xl">
+            {shown}
+        </p>
     );
 }

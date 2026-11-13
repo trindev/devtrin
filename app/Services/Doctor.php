@@ -81,6 +81,32 @@ class Doctor
                     count($result['bad']), implode(', ', array_slice($result['bad'], 0, 3)))]
                 : [self::OK, number_format($result['checked'])." ไฟล์ตรงทุกไฟล์ · OPcache {$opcache}"];
         });
+        $add('แอป', 'OPcache', function () {
+            // host นี้เคยมี OPcache เสียในหน่วยความจำ (law-quest) — หน่วยความจำ/บัฟเฟอร์ข้อความเต็ม เป็นต้นเหตุที่พบบ่อย ดูไว้ก่อนพัง
+            $s = function_exists('opcache_get_status') ? @opcache_get_status(false) : false;
+            if (! $s || ! ($s['opcache_enabled'] ?? false)) {
+                return [self::OK, 'ปิดอยู่ หรือ host ไม่ให้อ่านสถานะ (opcache.restrict_api)'];
+            }
+            $mb = fn ($b) => round($b / 1048576, 1);
+            $m = $s['memory_usage'];
+            $total = $m['used_memory'] + $m['free_memory'] + $m['wasted_memory'];
+            $freePct = $total ? round($m['free_memory'] / $total * 100) : 0;
+            $wastedPct = round($m['current_wasted_percentage'] ?? 0, 1);
+            $strings = $s['interned_strings_usage'] ?? null;
+            $stringsFree = $strings && $strings['buffer_size'] ? round($strings['free_memory'] / $strings['buffer_size'] * 100) : null;
+            $st = $s['opcache_statistics'] ?? [];
+            $cfg = function_exists('opcache_get_configuration') ? (@opcache_get_configuration()['directives'] ?? []) : [];
+
+            $detail = sprintf('หน่วยความจำ %s/%s MB (ว่าง %d%%) · เสียเปล่า %s%%%s · hit %s%% · %s สคริปต์ · restart: เต็ม %d, hash %d, สั่งล้าง %d%s',
+                $mb($m['used_memory']), $mb($total), $freePct, $wastedPct,
+                $stringsFree !== null ? " · บัฟเฟอร์ข้อความว่าง {$stringsFree}%" : '',
+                round($st['opcache_hit_rate'] ?? 0, 1), number_format($st['num_cached_scripts'] ?? 0),
+                $st['oom_restarts'] ?? 0, $st['hash_restarts'] ?? 0, $st['manual_restarts'] ?? 0,
+                array_key_exists('opcache.validate_timestamps', $cfg) ? ' · ตรวจไฟล์ใหม่ '.($cfg['opcache.validate_timestamps'] ? 'ทุก '.($cfg['opcache.revalidate_freq'] ?? '?').' วินาที' : 'ปิด (ต้องล้างเองหลังอัปเดต)') : '');
+            $tight = $freePct < 10 || $wastedPct >= 10 || ($stringsFree !== null && $stringsFree < 10) || ($st['oom_restarts'] ?? 0) > 0;
+
+            return [$tight ? self::WARN : self::OK, $detail.($tight ? ' — ใกล้เต็ม: กด "ล้าง OPcache" และแจ้ง host เพิ่ม opcache.memory_consumption / interned_strings_buffer' : '')];
+        });
         $add('แอป', 'กู้คืน OPcache อัตโนมัติ', function () {
             $state = OpcacheHeal::state();
             if (! isset($state['at'])) {
@@ -162,6 +188,30 @@ class Doctor
             $gb = $free === false ? null : round($free / 1024 ** 3, 1);
 
             return $gb === null ? [self::WARN, 'อ่านค่าไม่ได้'] : [$gb > 1 ? self::OK : self::WARN, "ว่าง {$gb} GB"];
+        });
+        $add('บริการ', 'Google login (แชท)', fn () => \App\Http\Controllers\Auth\GoogleAuthController::enabled()
+            ? [self::OK, 'เปิดแล้ว · redirect URI: '.url('/auth/google/callback')]
+            : [self::WARN, 'ยังไม่ได้ตั้ง GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET — ผู้เข้าชมยังแชทไม่ได้ (redirect URI: '.url('/auth/google/callback').')']);
+        $add('บริการ', 'Web Push', function () {
+            $push = app(WebPush::class);
+            $subs = \App\Models\PushSubscription::count();
+            $admins = \App\Models\PushSubscription::whereIn('user_id', User::where('is_admin', true)->select('id'))->count();
+            if (! $push->configured()) {
+                return [self::WARN, 'ยังไม่มีคีย์ VAPID — ระบบจะสร้างให้เองเมื่อมีคนเปิดหน้าเว็บที่ login อยู่'];
+            }
+
+            return [$admins > 0 ? self::OK : self::WARN, "เครื่องที่เปิดรับ {$subs} เครื่อง (admin {$admins})".($admins ? '' : ' — admin ยังไม่ได้กด "เปิดแจ้งเตือนแชท" ในเมนูหลังบ้าน จะไม่รู้เมื่อมีแชทใหม่')];
+        });
+        $add('บริการ', 'อีเมล (ส่ง/อ่าน)', function () {
+            $sends = ! in_array(config('mail.default'), ['log', 'array'], true);
+            $inbox = app(MailInbox::class)->configured();
+
+            return [$sends && $inbox ? self::OK : self::WARN, ($sends ? 'ส่งผ่าน '.config('mail.default') : 'ยังไม่ส่งจริง (MAIL_MAILER='.config('mail.default').')').' · '.($inbox ? 'อ่านกล่องเข้าผ่าน IMAP ได้' : 'ยังไม่ได้ตั้ง IMAP — หน้า /admin/mail อ่านอีเมลไม่ได้')];
+        });
+        $add('บริการ', 'แชทรอตอบ', function () {
+            $waiting = \App\Models\Conversation::where('admin_unread', '>', 0)->count();
+
+            return [$waiting > 0 ? self::WARN : self::OK, $waiting ? "มี {$waiting} ห้องที่ยังไม่ได้อ่าน — /admin/chat" : 'ไม่มีแชทค้าง'];
         });
         $add('ระบบ', 'อัปเดตจาก GitHub', fn () => app(SelfUpdater::class)->configured()
             ? [self::OK, 'repo '.config('services.github.repo')]

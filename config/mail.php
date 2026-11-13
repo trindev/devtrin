@@ -115,4 +115,16 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    // ลิงก์ webmail สำหรับอ่านอีเมลขาเข้า (แสดงในหน้า /admin/mail) เช่น DirectAdmin: https://<โดเมน>/roundcube
+    'webmail_url' => env('MAIL_WEBMAIL_URL'),
+
+    // กล่องอีเมลขาเข้าในหน้า /admin/mail (IMAP) — ไม่ตั้ง = ใช้ host/บัญชีเดียวกับ SMTP
+    'imap' => [
+        'host' => env('MAIL_IMAP_HOST', env('MAIL_HOST')),
+        'port' => (int) env('MAIL_IMAP_PORT', 993),
+        'encryption' => env('MAIL_IMAP_ENCRYPTION', 'ssl'),
+        'username' => env('MAIL_IMAP_USERNAME', env('MAIL_USERNAME')),
+        'password' => env('MAIL_IMAP_PASSWORD', env('MAIL_PASSWORD')),
+    ],
+
 ];

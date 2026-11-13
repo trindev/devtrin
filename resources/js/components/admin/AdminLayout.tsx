@@ -1,20 +1,26 @@
 import type { SharedProps } from '@/types';
 import DisplayControls from '@/components/DisplayControls';
+import { ConfirmHost } from '@/components/ui/confirm-dialog';
 import { Head, Link, usePage } from '@inertiajs/react';
 import clsx from 'clsx';
-import { CircleCheck, ExternalLink, FolderKanban, LayoutDashboard, LogOut, Settings, Stethoscope, TriangleAlert, UserRound, X } from 'lucide-react';
+import { usePush } from '@/lib/push';
+import { Bell, BellOff, CircleCheck, ExternalLink, FolderKanban, LayoutDashboard, LoaderCircle, LogOut, Mail, MessagesSquare, Settings, Stethoscope, TriangleAlert, UserRound, X } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
 const nav = [
     { href: '/admin', label: 'ภาพรวม', icon: LayoutDashboard, match: (u: string) => u === '/admin' },
     { href: '/admin/projects', label: 'โปรเจกต์', icon: FolderKanban, match: (u: string) => u.startsWith('/admin/projects') },
+    { href: '/admin/chat', label: 'แชท', icon: MessagesSquare, match: (u: string) => u.startsWith('/admin/chat') },
+    { href: '/admin/mail', label: 'อีเมล', icon: Mail, match: (u: string) => u.startsWith('/admin/mail') },
     { href: '/admin/settings', label: 'ตั้งค่าเว็บ', icon: Settings, match: (u: string) => u.startsWith('/admin/settings') },
     { href: '/admin/account', label: 'บัญชีของฉัน', icon: UserRound, match: (u: string) => u.startsWith('/admin/account') },
 ];
 
-export default function AdminLayout({ title, children }: { title: string; children: ReactNode }) {
+export default function AdminLayout({ title, children, wide = false }: { title: string; children: ReactNode; wide?: boolean }) {
     const { url, props } = usePage<SharedProps>();
-    const { flash, auth, app, site } = props;
+    const { flash, auth, app, site, adminBadges, push } = props;
+    const notify = usePush(push);
+    const badge = (href: string) => (href === '/admin/chat' ? (adminBadges?.chat ?? 0) : 0);
     const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     useEffect(() => {
@@ -51,7 +57,8 @@ export default function AdminLayout({ title, children }: { title: string; childr
                     {nav.map((item) => (
                         <Link key={item.href} href={item.href} className={linkClass(item.match(path))}>
                             <item.icon className="h-4 w-4" aria-hidden="true" />
-                            {item.label}
+                            <span className="flex-1">{item.label}</span>
+                            {badge(item.href) > 0 && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-violet-600 px-1.5 text-[11px] font-semibold text-white">{badge(item.href)}</span>}
                         </Link>
                     ))}
                     <a href="/_maintenance" className={linkClass(false)}>
@@ -59,7 +66,20 @@ export default function AdminLayout({ title, children }: { title: string; childr
                         ศูนย์ดูแลระบบ
                     </a>
                     <span className="flex-1" />
-                    <DisplayControls tone="admin" className="mb-3 px-3" />
+                    {notify.state !== 'unsupported' && (
+                        <button
+                            type="button"
+                            onClick={notify.toggle}
+                            disabled={notify.state === 'busy' || notify.state === 'denied' || notify.state === 'install'}
+                            aria-pressed={notify.state === 'on'}
+                            className={clsx(linkClass(false), 'w-full disabled:opacity-50')}
+                            title={notify.state === 'denied' ? 'เบราว์เซอร์บล็อกการแจ้งเตือน — เปิดในตั้งค่าเว็บไซต์' : notify.state === 'install' ? 'iPhone: เพิ่มเว็บลงหน้าจอโฮมก่อน' : undefined}
+                        >
+                            {notify.state === 'busy' ? <LoaderCircle className="h-4 w-4 animate-spin" /> : notify.state === 'on' ? <Bell className="h-4 w-4 fill-current" /> : <BellOff className="h-4 w-4" />}
+                            {notify.state === 'on' ? 'แจ้งเตือนแชท: เปิด' : notify.state === 'denied' ? 'แจ้งเตือนถูกบล็อก' : 'เปิดแจ้งเตือนแชท'}
+                        </button>
+                    )}
+                    <DisplayControls tone="admin" className="my-3 px-3" />
                     <a href="/" target="_blank" rel="noopener" className={linkClass(false)}>
                         <ExternalLink className="h-4 w-4" aria-hidden="true" />
                         ดูหน้าเว็บ
@@ -97,6 +117,7 @@ export default function AdminLayout({ title, children }: { title: string; childr
                     {nav.map((item) => (
                         <Link key={item.href} href={item.href} className={clsx(linkClass(item.match(path)), 'shrink-0 py-1.5')}>
                             {item.label}
+                            {badge(item.href) > 0 && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-violet-600 px-1.5 text-[11px] font-semibold text-white">{badge(item.href)}</span>}
                         </Link>
                     ))}
                     <a href="/_maintenance" className={clsx(linkClass(false), 'shrink-0 py-1.5')}>
@@ -107,9 +128,10 @@ export default function AdminLayout({ title, children }: { title: string; childr
             </header>
 
             <main className="px-4 py-6 lg:ml-64 lg:px-10 lg:py-10">
-                <div className="mx-auto max-w-5xl">{children}</div>
+                <div className={clsx('mx-auto', wide ? 'max-w-[90rem]' : 'max-w-5xl')}>{children}</div>
             </main>
 
+            <ConfirmHost />
             {toast && (
                 <div
                     role="status"

@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar',
     ];
 
     /**
@@ -31,6 +32,8 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'google_id',
+        'mail_signature',
         'remember_token',
     ];
 
@@ -39,6 +42,11 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    public function conversation(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Conversation::class);
+    }
+
     protected function casts(): array
     {
         return [

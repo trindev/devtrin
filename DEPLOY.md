@@ -68,6 +68,27 @@ DirectAdmin ล็อก document root ของโดเมนหลักไ�
    - **โปรเจกต์:** ใส่รูปปก แกลเลอรี และคำอธิบาย ส่วนดาว ★ ใช้เลือกผลงานเด่นที่แสดงในส่วนเลื่อนแนวนอน
    - โปรเจกต์ที่ยังไม่รู้รายละเอียด (NeeYung, Pliew, Staffix, ...) seed ไว้แค่ชื่อกับลิงก์ ให้เติมหรือซ่อนเอง
 
+## เปิดใช้แชท (Google login) และแจ้งเตือน
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials
+   - ใช้ OAuth client เดิมของ law-quest ได้ หรือสร้างใหม่ (Web application)
+   - **Authorized JavaScript origins:** `https://devtrin.com`
+   - **Authorized redirect URIs:** `https://devtrin.com/auth/google/callback`
+2. ใส่ `GOOGLE_CLIENT_ID` และ `GOOGLE_CLIENT_SECRET` ใน `.env` → `/_maintenance` กด "ล้าง cache ทั้งหมด" แล้ว "Cache config/route/view"
+3. ปุ่มแชทลอยมุมขวาล่างของหน้าเว็บจะให้ผู้เข้าชม login ด้วย Google แล้วพิมพ์คุยได้ — ข้อความใหม่ขึ้นเองทุก 3 วินาที (polling เหมือน staycool เพราะ shared host ไม่มี websocket)
+4. **แจ้งเตือนเมื่อมีแชทใหม่:** login หลังบ้านบนเครื่องที่ต้องการ (มือถือ/คอม) → เมนูซ้ายกด **"เปิดแจ้งเตือนแชท"** แล้วกดอนุญาต
+   - iPhone: เปิด devtrin.com ใน Safari → แชร์ → "เพิ่มลงในหน้าจอโฮม" แล้วเปิดจากไอคอนนั้นก่อน (iOS 16.4+)
+   - ผู้เข้าชมกดกระดิ่งในหน้าต่างแชทเพื่อรับแจ้งเตือนเมื่อทีมงานตอบ
+   - คีย์ VAPID ระบบสร้างให้เองครั้งแรก ไม่ต้องตั้งใน `.env`
+
+## เปิดใช้หน้าอีเมล (/admin/mail)
+
+1. DirectAdmin → E-mail Accounts → สร้างบัญชี เช่น `hello@devtrin.com`
+2. ใส่ใน `.env` (ค่าตัวอย่างใน `.env.production.example`): `MAIL_MAILER=smtp`, `MAIL_HOST`, `MAIL_PORT=465`, `MAIL_SCHEME=smtps`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`
+   - กล่องเข้า (IMAP port 993) ใช้บัญชีเดียวกันอัตโนมัติ — ตั้งแยกได้ด้วย `MAIL_IMAP_*`
+3. ล้าง cache ที่ `/_maintenance` → เปิด `/admin/mail` แท็บตั้งค่า กด "ส่งทดสอบ"
+4. ตรวจที่ `/_maintenance` แถว "อีเมล (ส่ง/อ่าน)" ต้องเป็นปกติ
+
 ## ออกเวอร์ชันใหม่ (นักพัฒนา)
 
 ```bash

@@ -1,0 +1,216 @@
+/* ชุดสี/ตัวแปรของ UI kit ที่ยกมาจาก lawquest-web (หน้าอีเมลหลังบ้าน) — โหมดมืดผูกกับ data-theme แทน .dark */
+@theme {
+
+    --radius-xl: calc(var(--radius) + 4px);
+    --radius-2xl: calc(var(--radius) + 8px);
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-success: var(--success);
+    --color-success-soft: var(--success-soft);
+    --color-danger-soft: var(--danger-soft);
+    --color-warning: var(--warning);
+    --color-warning-soft: var(--warning-soft);
+    --color-text-2: var(--text-2);
+    --color-accent-soft: var(--accent-soft);
+    --color-accent-ink: var(--accent-ink);
+
+    --ease-out: var(--ease);
+    --animate-rise: rise 400ms var(--ease) both;
+    --animate-pop: pop 260ms var(--ease) both;
+    --animate-shake: shake 360ms var(--ease) both;
+    --animate-hop: hop 560ms var(--ease) both;
+
+    @keyframes rise {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+    }
+    @keyframes pop {
+        from {
+            opacity: 0;
+            transform: scale(0.96);
+        }
+    }
+    @keyframes hop {
+        30% {
+            transform: translateY(-14px) scale(1.04, 0.96);
+        }
+        55% {
+            transform: translateY(0) scale(1.06, 0.92);
+        }
+        75% {
+            transform: translateY(-4px);
+        }
+    }
+    @keyframes shake {
+        20%,
+        60% {
+            transform: translateX(-4px);
+        }
+        40%,
+        80% {
+            transform: translateX(4px);
+        }
+    }
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar-background);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+    --background: #f5f6f8;
+    --foreground: #15171c;
+    --card: #ffffff;
+    --card-foreground: #15171c;
+    --popover: #ffffff;
+    --popover-foreground: #15171c;
+    --primary: #2546c8;
+    --primary-foreground: #ffffff;
+    --secondary: #eceef2;
+    --secondary-foreground: #15171c;
+    --muted: #eceef2;
+    --muted-foreground: #6a7080;
+    --text-2: #4a505e;
+    --accent: #eceef2;
+    --accent-foreground: #15171c;
+    --accent-soft: #e8edfc;
+    --accent-ink: #1f3cad;
+    --destructive: #d42f2f;
+    --destructive-foreground: #ffffff;
+    --success: #16893f;
+    --success-soft: #e6f4ea;
+    --danger-soft: #fbeaea;
+    --warning: #b45309;
+    --warning-soft: #fdf3e2;
+    --border: rgb(21 23 28 / 0.08);
+    --input: rgb(21 23 28 / 0.14);
+    --ring: #2546c8;
+    --chart-1: #2546c8;
+    --chart-2: #8a90a0;
+    --chart-3: #c3c7d0;
+    --chart-4: #16893f;
+    --chart-5: #d42f2f;
+    --radius: 0.75rem;
+    --sidebar-background: #eff1f4;
+    --sidebar-foreground: #4a505e;
+    --sidebar-primary: #2546c8;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #ffffff;
+    --sidebar-accent-foreground: #15171c;
+    --sidebar-border: rgb(21 23 28 / 0.08);
+    --sidebar-ring: #2546c8;
+
+    /* กระจกฝ้า (เฉพาะชั้นลอย) */
+    --glass-bg: rgb(255 255 255 / 0.68);
+    --glass-border: rgb(255 255 255 / 0.7);
+    --glass-edge: rgb(21 23 28 / 0.08);
+    --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 0.85);
+    --glass-shadow: 0 12px 32px rgb(21 23 28 / 0.1), 0 2px 6px rgb(21 23 28 / 0.05);
+    --scrim: rgb(15 17 22 / 0.32);
+
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme='dark'] {
+    --background: #0e0f12;
+    --foreground: #eceef2;
+    --card: #16171b;
+    --card-foreground: #eceef2;
+    --popover: #1b1c21;
+    --popover-foreground: #eceef2;
+    --primary: #7f98ff;
+    --primary-foreground: #0e0f12;
+    --secondary: #212329;
+    --secondary-foreground: #eceef2;
+    --muted: #212329;
+    --muted-foreground: #8b909c;
+    --text-2: #a8adb8;
+    --accent: #212329;
+    --accent-foreground: #eceef2;
+    --accent-soft: rgb(127 152 255 / 0.12);
+    --accent-ink: #a6b6ff;
+    --destructive: #e5484d;
+    --destructive-foreground: #ffffff;
+    --success: #4cc38a;
+    --success-soft: rgb(76 195 138 / 0.12);
+    --danger-soft: rgb(229 72 77 / 0.12);
+    --warning: #f0a44b;
+    --warning-soft: rgb(240 164 75 / 0.12);
+    --border: rgb(236 238 242 / 0.08);
+    --input: rgb(236 238 242 / 0.14);
+    --ring: #7f98ff;
+    --chart-1: #7f98ff;
+    --chart-2: #6b7080;
+    --chart-3: #3a3d46;
+    --chart-4: #4cc38a;
+    --chart-5: #e5484d;
+    --sidebar-background: #0b0c0f;
+    --sidebar-foreground: #a8adb8;
+    --sidebar-primary: #7f98ff;
+    --sidebar-primary-foreground: #0e0f12;
+    --sidebar-accent: #1b1c21;
+    --sidebar-accent-foreground: #eceef2;
+    --sidebar-border: rgb(236 238 242 / 0.08);
+    --sidebar-ring: #7f98ff;
+
+    --glass-bg: rgb(28 29 35 / 0.62);
+    --glass-border: rgb(255 255 255 / 0.08);
+    --glass-edge: rgb(0 0 0 / 0.4);
+    --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 0.08);
+    --glass-shadow: 0 16px 40px rgb(0 0 0 / 0.45), 0 2px 6px rgb(0 0 0 / 0.3);
+    --scrim: rgb(0 0 0 / 0.5);
+}
+
+@layer base {
+    *, ::before, ::after { border-color: var(--color-border); }
+}
+@layer components {
+    /* พื้นผิวเนื้อหา + ปุ่มกดยุบ (จาก lawquest-web) */
+    .surface { background: var(--card); border: 1px solid var(--border); border-radius: 1rem; }
+    .press { transition: transform 150ms var(--ease), background-color 150ms var(--ease), border-color 150ms var(--ease), color 150ms var(--ease), opacity 150ms var(--ease); }
+    .press:active:not(:disabled) { transform: scale(0.97); }
+}
+@keyframes confirm-draw { to { stroke-dashoffset: 0; } }

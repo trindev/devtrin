@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './admin-kit.css';
 
 @source '../views';
 @source '../js';

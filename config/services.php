@@ -35,6 +35,20 @@ return [
         ],
     ],
 
+    // เข้าสู่ระบบด้วย Google (ผู้เข้าชมที่จะแชท) — Authorized redirect URI: <APP_URL>/auth/google/callback
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+    ],
+
+    // Web Push (VAPID) — ไม่ตั้งก็ได้: ระบบสร้างคีย์ให้เองครั้งแรกแล้วเก็บแบบเข้ารหัสในฐานข้อมูล
+    'webpush' => [
+        'public_key' => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+        'subject' => env('VAPID_SUBJECT'),
+    ],
+
     // /_maintenance — token สำหรับ uptime monitor (ดูอย่างเดียว) และ public/recover.php
     'maintenance' => [
         'token' => env('MAINTENANCE_TOKEN'),
