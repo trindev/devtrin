@@ -102,6 +102,36 @@ class ProjectController extends Controller
         return back()->with('success', 'บันทึกลำดับแล้ว');
     }
 
+    /**
+     * อัปโหลดรูปปกหลายโปรเจกต์พร้อมกัน — จับคู่จากชื่อไฟล์ = slug (เช่น staycool.webp → โปรเจกต์ slug "staycool")
+     */
+    public function covers(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'covers' => ['required', 'array', 'max:40'],
+            'covers.*' => Media::IMAGE_RULE,
+        ], [], ['covers.*' => 'รูปปก']);
+
+        $done = [];
+        $unmatched = [];
+        foreach ($request->file('covers') as $file) {
+            $slug = strtolower(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+            $project = Project::firstWhere('slug', $slug);
+            if (! $project) {
+                $unmatched[] = $file->getClientOriginalName();
+
+                continue;
+            }
+            Media::delete($project->cover_path);
+            $project->update(['cover_path' => Media::store($file, 'projects')]);
+            $done[] = $project->title;
+        }
+
+        $message = $done ? 'ใส่ปกแล้ว '.count($done).' โปรเจกต์: '.implode(', ', $done) : 'ไม่มีไฟล์ไหนตรงกับ slug ของโปรเจกต์';
+
+        return back()->with($done ? 'success' : 'error', $unmatched ? $message.' · ไม่พบ slug: '.implode(', ', $unmatched) : $message);
+    }
+
     private function validated(Request $request, ?Project $project = null): array
     {
         $data = $request->validate([

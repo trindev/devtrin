@@ -7,16 +7,19 @@ export default function ProjectArt({
     className,
     imgClassName,
     sizes,
+    eager = false,
 }: {
     project: Pick<Project, 'title' | 'accent' | 'cover_url'>;
     className?: string;
     imgClassName?: string;
     sizes?: string;
+    /** ภาพที่อยู่ในจอแรกหรือในส่วนที่เลื่อนด้วย transform (lazy โหลดช้า) */
+    eager?: boolean;
 }) {
     if (project.cover_url) {
         return (
             <div className={clsx('relative overflow-hidden bg-ink-3', className)}>
-                <img src={project.cover_url} alt={project.title} sizes={sizes} loading="lazy" decoding="async" className={clsx('h-full w-full object-cover', imgClassName)} />
+                <img src={project.cover_url} alt={project.title} sizes={sizes} loading={eager ? 'eager' : 'lazy'} decoding="async" className={clsx('h-full w-full object-cover', imgClassName)} />
             </div>
         );
     }

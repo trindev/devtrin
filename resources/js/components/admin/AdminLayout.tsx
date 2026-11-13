@@ -39,6 +39,7 @@ export default function AdminLayout({ title, children }: { title: string; childr
             <Head title={`${title} · หลังบ้าน ${site.site_name}`} />
             <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-zinc-200 bg-white p-4 lg:flex dark:border-zinc-800 dark:bg-zinc-900">
                 <Link href="/admin" className="mb-8 flex items-center gap-2 px-3 pt-2 font-display text-xl font-bold">
+                    <img src="/favicon.svg" alt="" className="mr-0.5 h-8 w-8 rounded-lg" />
                     {site.site_name.toLowerCase()}
                     <span className="text-violet-600">.</span>
                     <span className="ml-1 rounded-md bg-zinc-100 px-1.5 py-0.5 font-sans text-[11px] font-medium text-zinc-500 dark:bg-zinc-800">admin</span>
@@ -73,7 +74,8 @@ export default function AdminLayout({ title, children }: { title: string; childr
             {/* มือถือ: เมนูเป็นแถบเลื่อนด้านบน */}
             <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/90 backdrop-blur lg:hidden dark:border-zinc-800 dark:bg-zinc-900/90">
                 <div className="flex h-14 items-center gap-2 px-4">
-                    <Link href="/admin" className="font-display text-lg font-bold">
+                    <Link href="/admin" className="flex items-center gap-2 font-display text-lg font-bold">
+                        <img src="/favicon.svg" alt="" className="h-7 w-7 rounded-lg" />
                         {site.site_name.toLowerCase()}
                         <span className="text-violet-600">.</span>
                     </Link>

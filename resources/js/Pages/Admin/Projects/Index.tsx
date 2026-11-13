@@ -4,7 +4,8 @@ import ProjectArt from '@/components/site/ProjectArt';
 import type { Project, SharedProps } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 import clsx from 'clsx';
-import { ArrowDown, ArrowUp, ExternalLink, Pencil, Plus, Star } from 'lucide-react';
+import { ArrowDown, ArrowUp, ExternalLink, ImagePlus, Pencil, Plus, Star } from 'lucide-react';
+import { prepareImage } from '@/lib/image';
 import { useEffect, useState } from 'react';
 
 interface Props extends SharedProps {
@@ -35,6 +36,14 @@ export default function ProjectsIndex() {
         router.patch(`/admin/projects/${p.slug}/toggle`, { field }, { preserveScroll: true, preserveState: true, onError: () => setOrder(projects) });
     };
 
+    const [uploading, setUploading] = useState(false);
+    const uploadCovers = async (files: FileList | null) => {
+        if (!files?.length) return;
+        setUploading(true);
+        const covers = await Promise.all(Array.from(files).map((f) => prepareImage(f))); // ย่อรูปแต่คงชื่อไฟล์ (= slug) ไว้
+        router.post('/admin/projects/covers', { covers }, { forceFormData: true, preserveScroll: true, onFinish: () => setUploading(false) });
+    };
+
     const shownCount = order.filter((p) => p.is_published).length;
     const visible = order.filter((p) => (filter === 'shown' ? p.is_published : filter === 'hidden' ? !p.is_published : true));
     const tabs: [Filter, string, number][] = [
@@ -58,6 +67,16 @@ export default function ProjectsIndex() {
                                 <Button onClick={() => router.post('/admin/projects/reorder', { ids: order.map((p) => p.id) }, { preserveScroll: true })}>บันทึกลำดับ</Button>
                             </>
                         )}
+                        <label
+                            className={clsx(
+                                'inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 text-sm font-medium hover:bg-zinc-50 focus-within:ring-2 focus-within:ring-violet-500 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800',
+                                uploading && 'pointer-events-none opacity-60',
+                            )}
+                            title="ตั้งชื่อไฟล์ให้ตรงกับ slug เช่น staycool.webp"
+                        >
+                            <ImagePlus className="h-4 w-4" /> {uploading ? 'กำลังอัปโหลด…' : 'อัปโหลดปกหลายรูป'}
+                            <input type="file" accept="image/*" multiple className="sr-only" onChange={(e) => uploadCovers(e.target.files)} />
+                        </label>
                         <Link href="/admin/projects/create" className="inline-flex h-10 items-center gap-2 rounded-xl bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-white dark:text-zinc-900">
                             <Plus className="h-4 w-4" /> เพิ่มโปรเจกต์
                         </Link>
@@ -140,7 +159,7 @@ export default function ProjectsIndex() {
                     })}
                 </ul>
             )}
-            <p className="mt-3 text-xs text-zinc-500">โปรเจกต์ที่ซ่อนไว้จะไม่อยู่ในหน้าแรก แต่แอดมินยังเปิดดูหน้าโปรเจกต์ได้ · ★ = แสดงในส่วนผลงานเด่น (เฉพาะโปรเจกต์ที่แสดงอยู่)</p>
+            <p className="mt-3 text-xs text-zinc-500">อัปโหลดปกหลายรูป: ตั้งชื่อไฟล์ตาม slug ของโปรเจกต์ (ส่วนท้ายของลิงก์ /projects/…) เช่น staycool.webp · โปรเจกต์ที่ซ่อนไว้จะไม่อยู่ในหน้าแรก แต่แอดมินยังเปิดดูหน้าโปรเจกต์ได้ · ★ = แสดงในส่วนผลงานเด่น (เฉพาะโปรเจกต์ที่แสดงอยู่)</p>
         </AdminLayout>
     );
 }

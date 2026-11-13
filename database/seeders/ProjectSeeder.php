@@ -30,8 +30,8 @@ class ProjectSeeder extends Seeder
             ['pliew', 'Pliew', null, null, 'Web App', ['Laravel'], '#ef4444', false],
             ['staffix', 'Staffix', null, null, 'Web App', ['Laravel'], '#3b82f6', false],
             ['art-of-life', 'Art of Life', null, null, 'Web App', ['Laravel'], '#a855f7', false],
-            ['chat', 'Chat', null, null, 'Web App', ['Laravel'], '#06b6d4', false],
-            ['aed-iot', 'AED IoT', null, null, 'IoT', ['IoT', 'PHP'], '#f43f5e', false],
+            ['chat', 'Staycool Inbox', null, null, 'Web App', ['Laravel'], '#06b6d4', false],
+            ['aed-iot', 'Smart AED IoT', null, null, 'IoT', ['IoT', 'MQTT', 'REST API', 'Laravel'], '#f43f5e', false],
             ['pm', 'PM', null, null, 'Web App', ['PHP'], '#64748b', false],
             ['trin', 'Trin', null, null, 'Web App', ['Laravel'], '#eab308', false],
         ];

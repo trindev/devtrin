@@ -22,6 +22,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/logout', [Admin\AuthController::class, 'destroy'])->name('logout');
         Route::get('/', Admin\DashboardController::class)->name('dashboard');
 
+        Route::post('/projects/covers', [Admin\ProjectController::class, 'covers'])->name('projects.covers');
         Route::post('/projects/reorder', [Admin\ProjectController::class, 'reorder'])->name('projects.reorder');
         Route::patch('/projects/{project}/toggle', [Admin\ProjectController::class, 'toggle'])->name('projects.toggle');
         Route::resource('projects', Admin\ProjectController::class)->except('show');

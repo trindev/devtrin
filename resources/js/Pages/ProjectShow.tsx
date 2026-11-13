@@ -108,7 +108,7 @@ export default function ProjectShow() {
 
             <div className="px-4 md:px-8">
                 <div className="p-cover relative mx-auto aspect-[16/9] max-w-[1400px] overflow-hidden rounded-3xl">
-                    <ProjectArt project={project} className="p-cover-img absolute inset-0 h-full w-full" sizes="(min-width: 1400px) 1400px, 100vw" />
+                    <ProjectArt project={project} className="p-cover-img absolute inset-0 h-full w-full" eager sizes="(min-width: 1400px) 1400px, 100vw" />
                 </div>
             </div>
 

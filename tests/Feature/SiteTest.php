@@ -193,4 +193,20 @@ class SiteTest extends TestCase
         $this->actingAs($admin)->put('/admin/account', ['name' => 'T', 'email' => $admin->email, 'current_password' => 'password', 'password' => 'new-password-123', 'password_confirmation' => 'new-password-123'])
             ->assertSessionHasNoErrors();
     }
+
+    public function test_bulk_cover_upload_matches_files_by_slug(): void
+    {
+        Storage::fake('public');
+        $staycool = Project::create(['title' => 'Staycool', 'slug' => 'staycool']);
+        $raya = Project::create(['title' => 'Raya', 'slug' => 'raya']);
+
+        $this->actingAs($this->admin())->post('/admin/projects/covers', ['covers' => [
+            UploadedFile::fake()->image('staycool.webp'),
+            UploadedFile::fake()->image('RAYA.png'),
+            UploadedFile::fake()->image('unknown.jpg'),
+        ]])->assertSessionHas('success', fn ($m) => str_contains($m, '2 โปรเจกต์') && str_contains($m, 'unknown.jpg'));
+
+        Storage::disk('public')->assertExists($staycool->fresh()->cover_path);
+        Storage::disk('public')->assertExists($raya->fresh()->cover_path);
+    }
 }

@@ -226,7 +226,7 @@ export default function Home() {
                                     className="featured-card group relative w-[85vw] shrink-0 snap-center md:w-[62vw] lg:w-[52vw]"
                                 >
                                     <div className="relative aspect-[16/10] overflow-hidden rounded-3xl">
-                                        <ProjectArt project={p} className="featured-img absolute inset-0 h-full w-full" imgClassName="transition-transform duration-700 ease-out-expo group-hover:scale-105" />
+                                        <ProjectArt project={p} eager className="featured-img absolute inset-0 h-full w-full" imgClassName="transition-transform duration-700 ease-out-expo group-hover:scale-105" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/10 to-transparent" />
                                         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6 md:p-10">
                                             <div>

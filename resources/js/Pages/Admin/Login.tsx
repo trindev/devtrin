@@ -10,9 +10,12 @@ export default function Login() {
         <div className="grid min-h-screen place-items-center bg-zinc-50 px-4 dark:bg-zinc-950">
             <Head title={`เข้าสู่ระบบ · ${site.site_name}`} />
             <div className="w-full max-w-sm">
-                <Link href="/" className="mb-8 block text-center font-display text-3xl font-bold text-zinc-900 dark:text-white">
+                <Link href="/" className="mb-8 flex flex-col items-center gap-4 font-display text-3xl font-bold text-zinc-900 dark:text-white">
+                    <img src="/favicon.svg" alt="" className="h-16 w-16 rounded-2xl shadow-lg" />
+                    <span>
                     {site.site_name.toLowerCase()}
                     <span className="text-violet-600">.</span>
+                    </span>
                 </Link>
                 <form
                     onSubmit={(e) => {
