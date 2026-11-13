@@ -1,0 +1,22 @@
+# ไฟล์นี้วางที่ /domains/devtrin.com/public_html/.htaccess (เปลี่ยนชื่อเป็น .htaccess)
+#
+# DirectAdmin ล็อก document root ของโดเมนหลักไว้ที่ public_html และในนั้นมีโฟลเดอร์ของ subdomain อื่นปนอยู่
+# จึงส่งเฉพาะ request ของ devtrin.com / www.devtrin.com เข้าแอป Laravel ที่ public_html/devtrin/public
+# - subdomain (staycool., law-quest., ...) ไม่โดนกฎนี้ เพราะเช็ก HTTP_HOST
+# - ผลพลอยได้: devtrin.com/law-quest/.env ฯลฯ จะกลายเป็นหน้า 404 ของแอป เปิดไฟล์ในโฟลเดอร์ subdomain ผ่านโดเมนหลักไม่ได้อีก
+# - path ที่ยังต้องเปิดตรงจากโฟลเดอร์ (ยกเว้นไว้ด้านล่าง): webmail, cgi-bin, .well-known (SSL), ไฟล์ยืนยัน Google
+#   ถ้ามีโฟลเดอร์อื่นที่ยังต้องเปิดผ่าน devtrin.com/<โฟลเดอร์> ให้เพิ่มชื่อในวงเล็บบรรทัด REQUEST_URI
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # www.devtrin.com → devtrin.com
+    RewriteCond %{HTTP_HOST} ^www\.devtrin\.com$ [NC]
+    RewriteRule ^(.*)$ https://devtrin.com/$1 [R=301,L]
+
+    RewriteCond %{HTTP_HOST} ^devtrin\.com$ [NC]
+    RewriteCond %{REQUEST_URI} !^/devtrin/public/
+    RewriteCond %{REQUEST_URI} !^/(\.well-known|cgi-bin|webmail|me|linepic)(/|$)
+    RewriteCond %{REQUEST_URI} !^/google38f5e63c4272272d\.html$
+    RewriteRule ^(.*)$ devtrin/public/$1 [L]
+</IfModule>

@@ -1,0 +1,10 @@
+# ใช้เมื่อ shared host ตั้ง document root เป็นโฟลเดอร์โปรเจกต์ (ตั้งเป็น /public ไม่ได้)
+# ส่งทุก request เข้า public/ — ไฟล์อื่น (.env, storage, vendor) จะเปิดจากเว็บไม่ได้
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>
