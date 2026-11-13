@@ -82,7 +82,11 @@ class ProjectController extends Controller
         $field = $request->validate(['field' => ['required', Rule::in(['is_published', 'is_featured'])]])['field'];
         $project->update([$field => ! $project->{$field}]);
 
-        return back();
+        $message = $field === 'is_published'
+            ? ($project->is_published ? "แสดง \"{$project->title}\" บนหน้าเว็บแล้ว" : "ซ่อน \"{$project->title}\" จากหน้าเว็บแล้ว")
+            : ($project->is_featured ? "ตั้ง \"{$project->title}\" เป็นผลงานเด่นแล้ว" : "เอา \"{$project->title}\" ออกจากผลงานเด่นแล้ว");
+
+        return back()->with('success', $message);
     }
 
     public function reorder(Request $request): RedirectResponse
