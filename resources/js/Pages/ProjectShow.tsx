@@ -2,7 +2,7 @@ import Magnetic from '@/components/site/Magnetic';
 import ProjectArt from '@/components/site/ProjectArt';
 import SiteLayout, { ContactSection } from '@/components/site/SiteLayout';
 import SplitWords from '@/components/site/SplitWords';
-import { gsap, useGSAP } from '@/lib/motion';
+import { gsap, revealWords, useGSAP } from '@/lib/motion';
 import type { Project, SharedProps } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowLeft, ArrowUpRight, Code } from 'lucide-react';
@@ -25,7 +25,7 @@ export default function ProjectShow() {
             const mm = gsap.matchMedia();
             mm.add('(prefers-reduced-motion: no-preference)', () => {
                 gsap.timeline({ defaults: { ease: 'expo.out' } })
-                    .from('.p-title .split-word', { yPercent: 115, duration: 1.3, stagger: 0.05 })
+                    .add(revealWords(document.querySelector('.p-title'), { duration: 1.3 })!)
                     .from('.p-fade', { y: 20, opacity: 0, duration: 0.9, stagger: 0.06 }, '-=0.9')
                     .from('.p-glow', { opacity: 0, scale: 0.6, duration: 2 }, 0);
 

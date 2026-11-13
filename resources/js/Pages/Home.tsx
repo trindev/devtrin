@@ -3,7 +3,7 @@ import Marquee from '@/components/site/Marquee';
 import ProjectArt from '@/components/site/ProjectArt';
 import SiteLayout, { ContactSection } from '@/components/site/SiteLayout';
 import SplitWords from '@/components/site/SplitWords';
-import { gsap, ScrollTrigger, scrollToTarget, useGSAP } from '@/lib/motion';
+import { gsap, revealWords, ScrollTrigger, scrollToTarget, useGSAP } from '@/lib/motion';
 import type { Project, SharedProps } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowDown, ArrowUpRight } from 'lucide-react';
@@ -32,7 +32,7 @@ export default function Home() {
                 // ── hero: คำโผล่จากใต้เส้นตอนเปิดหน้า แล้วจางออก/เลื่อนช้ากว่าตอนเลื่อนลง (parallax)
                 const intro = gsap.timeline({ defaults: { ease: 'expo.out' } });
                 intro
-                    .from('.hero-title .split-word', { yPercent: 115, rotate: 4, duration: 1.4, stagger: 0.05 })
+                    .add(revealWords(document.querySelector('.hero-title'), { rotate: 4, duration: 1.4 })!)
                     .from('.hero-fade', { y: 24, opacity: 0, duration: 1, stagger: 0.08 }, '-=1.05')
                     .from('.hero-blob', { scale: 0.4, opacity: 0, duration: 2.2, stagger: 0.15 }, 0);
 
@@ -71,13 +71,7 @@ export default function Home() {
 
                 // ── หัวข้อของแต่ละส่วน
                 gsap.utils.toArray<HTMLElement>('.reveal-heading').forEach((el) => {
-                    gsap.from(el.querySelectorAll('.split-word'), {
-                        yPercent: 110,
-                        duration: 1.1,
-                        ease: 'expo.out',
-                        stagger: 0.04,
-                        scrollTrigger: { trigger: el, start: 'top 85%' },
-                    });
+                    revealWords(el, { duration: 1.1, stagger: 0.04, scrollTrigger: { trigger: el, start: 'top 85%' } });
                 });
 
                 // ── แถวในรายการผลงาน

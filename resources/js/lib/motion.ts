@@ -45,3 +45,20 @@ export function segmentWords(text: string): string[] {
     if (!Seg) return text.split(/(\s+)/).filter(Boolean);
     return Array.from(new Seg('th', { granularity: 'word' }).segment(text), (s) => s.segment);
 }
+
+/**
+ * คำโผล่จากใต้เส้น (ใช้กับ SplitWords variant="mask") — ใส่ class masking ระหว่างเล่น แล้วเอาออกตอนจบ
+ * เพราะ mask ที่ตัดขอบตลอดเวลาจะตัดวรรณยุกต์ไทยที่ซ้อนสูง (ไม้เอกของ "ที่") บนจอกว้าง
+ */
+export function revealWords(el: Element | null, vars: gsap.TweenVars = {}): gsap.core.Tween | null {
+    if (!el) return null;
+    el.classList.add('masking');
+    return gsap.from(el.querySelectorAll('.split-word'), {
+        yPercent: 115,
+        duration: 1.2,
+        ease: 'expo.out',
+        stagger: 0.05,
+        ...vars,
+        onComplete: () => el.classList.remove('masking'),
+    });
+}

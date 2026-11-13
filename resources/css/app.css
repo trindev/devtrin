@@ -28,7 +28,9 @@ html.lenis, html.lenis body { height: auto; }
 .site ::selection { background: var(--color-lime); color: var(--color-ink); }
 
 /* ข้อความที่แยกเป็นคำ (SplitWords) — mask ให้คำโผล่จากล่าง */
-.split-mask { display: inline-block; overflow: hidden; vertical-align: top; padding: 0.28em 0 0.14em; margin: -0.28em 0 -0.14em; } /* เผื่อที่ให้วรรณยุกต์ไทยชั้นบน (ที่) และสระล่าง */
+.split-mask { display: inline-block; vertical-align: top; padding: 0.4em 0 0.16em; margin: -0.4em 0 -0.16em; }
+/* ตัดขอบเฉพาะตอนแอนิเมชันเล่นอยู่ (masking) — จบแล้วปล่อยให้วรรณยุกต์ไทยชั้นบนที่ยื่นเกินกรอบแสดงครบ */
+.masking .split-mask { overflow: hidden; }
 .split-word { display: inline-block; will-change: transform; }
 
 /* เส้นตาราง + noise ที่พื้นหลัง hero */
