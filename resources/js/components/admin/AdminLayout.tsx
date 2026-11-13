@@ -1,4 +1,5 @@
 import type { SharedProps } from '@/types';
+import DisplayControls from '@/components/DisplayControls';
 import { Head, Link, usePage } from '@inertiajs/react';
 import clsx from 'clsx';
 import { CircleCheck, ExternalLink, FolderKanban, LayoutDashboard, LogOut, Settings, Stethoscope, TriangleAlert, UserRound, X } from 'lucide-react';
@@ -40,8 +41,10 @@ export default function AdminLayout({ title, children }: { title: string; childr
             <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-zinc-200 bg-white p-4 lg:flex dark:border-zinc-800 dark:bg-zinc-900">
                 <Link href="/admin" className="mb-8 flex items-center gap-2 px-3 pt-2 font-display text-xl font-bold">
                     <img src="/favicon.svg" alt="" className="mr-0.5 h-8 w-8 rounded-lg" />
-                    {site.site_name.toLowerCase()}
-                    <span className="text-violet-600">.</span>
+                    <span>
+                        {site.site_name.toLowerCase()}
+                        <span className="text-violet-600">.</span>
+                    </span>
                     <span className="ml-1 rounded-md bg-zinc-100 px-1.5 py-0.5 font-sans text-[11px] font-medium text-zinc-500 dark:bg-zinc-800">admin</span>
                 </Link>
                 <nav className="flex flex-1 flex-col gap-1" aria-label="เมนูหลังบ้าน">
@@ -56,6 +59,7 @@ export default function AdminLayout({ title, children }: { title: string; childr
                         ศูนย์ดูแลระบบ
                     </a>
                     <span className="flex-1" />
+                    <DisplayControls tone="admin" className="mb-3 px-3" />
                     <a href="/" target="_blank" rel="noopener" className={linkClass(false)}>
                         <ExternalLink className="h-4 w-4" aria-hidden="true" />
                         ดูหน้าเว็บ
@@ -76,8 +80,10 @@ export default function AdminLayout({ title, children }: { title: string; childr
                 <div className="flex h-14 items-center gap-2 px-4">
                     <Link href="/admin" className="flex items-center gap-2 font-display text-lg font-bold">
                         <img src="/favicon.svg" alt="" className="h-7 w-7 rounded-lg" />
-                        {site.site_name.toLowerCase()}
-                        <span className="text-violet-600">.</span>
+                        <span>
+                            {site.site_name.toLowerCase()}
+                            <span className="text-violet-600">.</span>
+                        </span>
                     </Link>
                     <span className="flex-1" />
                     <a href="/" target="_blank" rel="noopener" className="rounded-lg p-2 text-zinc-500" aria-label="ดูหน้าเว็บ">
@@ -97,6 +103,7 @@ export default function AdminLayout({ title, children }: { title: string; childr
                         ดูแลระบบ
                     </a>
                 </nav>
+                <DisplayControls tone="admin" className="px-4 pb-3" />
             </header>
 
             <main className="px-4 py-6 lg:ml-64 lg:px-10 lg:py-10">

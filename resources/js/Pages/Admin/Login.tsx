@@ -1,4 +1,5 @@
 import { Button, Field, Input } from '@/components/admin/ui';
+import DisplayControls from '@/components/DisplayControls';
 import type { SharedProps } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 
@@ -7,7 +8,8 @@ export default function Login() {
     const form = useForm({ email: '', password: '', remember: true });
 
     return (
-        <div className="grid min-h-screen place-items-center bg-zinc-50 px-4 dark:bg-zinc-950">
+        <div className="relative grid min-h-screen place-items-center bg-zinc-50 px-4 dark:bg-zinc-950">
+            <DisplayControls tone="admin" className="absolute top-4 right-4" />
             <Head title={`เข้าสู่ระบบ · ${site.site_name}`} />
             <div className="w-full max-w-sm">
                 <Link href="/" className="mb-8 flex flex-col items-center gap-4 font-display text-3xl font-bold text-zinc-900 dark:text-white">

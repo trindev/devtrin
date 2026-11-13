@@ -157,7 +157,7 @@ export default function Home() {
                                         e.preventDefault();
                                         scrollToTarget('#work');
                                     }}
-                                    className="group inline-flex h-14 items-center gap-3 rounded-full bg-paper px-7 font-semibold text-ink transition hover:bg-lime"
+                                    className="group inline-flex h-14 items-center gap-3 rounded-full bg-paper px-7 font-semibold text-ink transition hover:bg-lime hover:text-dark"
                                 >
                                     ดูผลงาน
                                     <ArrowDown className="h-5 w-5 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
@@ -169,7 +169,7 @@ export default function Home() {
                                     e.preventDefault();
                                     scrollToTarget('#contact');
                                 }}
-                                className="inline-flex h-14 items-center rounded-full border border-white/20 px-7 font-medium text-paper transition hover:border-paper"
+                                className="inline-flex h-14 items-center rounded-full border border-paper/20 px-7 font-medium text-paper transition hover:border-paper"
                             >
                                 ติดต่อ
                             </a>
@@ -180,7 +180,7 @@ export default function Home() {
 
             {/* ───────────── TECH MARQUEE ───────────── */}
             {tech.length > 0 && (
-                <div className="border-y border-white/10 py-6 font-display text-3xl font-semibold tracking-tight text-paper/90 md:py-8 md:text-5xl">
+                <div className="border-y border-paper/10 py-6 font-display text-3xl font-semibold tracking-tight text-paper/90 md:py-8 md:text-5xl">
                     <Marquee items={tech} />
                 </div>
             )}
@@ -196,7 +196,7 @@ export default function Home() {
                             text={site.about}
                             className="about-text font-display text-[clamp(1.6rem,3.6vw,3.25rem)] leading-[1.25] font-medium tracking-tight"
                         />
-                        <dl className="mt-20 grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-white/10 bg-white/10 md:grid-cols-4">
+                        <dl className="mt-20 grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-paper/10 bg-paper/10 md:grid-cols-4">
                             <Stat label="โปรเจกต์" value={stats.projects} />
                             <Stat label="ออนไลน์อยู่" value={stats.live} />
                             <Stat label="เทคโนโลยี" value={stats.tech} />
@@ -238,7 +238,7 @@ export default function Home() {
                                                 {p.tagline && <p className="mt-2 max-w-lg text-sm text-paper/75 md:text-base">{p.tagline}</p>}
                                             </div>
                                             <span
-                                                className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-ink transition-transform duration-500 ease-out-expo group-hover:rotate-45 md:h-16 md:w-16"
+                                                className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-dark transition-transform duration-500 ease-out-expo group-hover:rotate-45 md:h-16 md:w-16"
                                                 style={{ backgroundColor: p.accent }}
                                                 aria-hidden="true"
                                             >
@@ -251,7 +251,7 @@ export default function Home() {
                             <div className="hidden w-[8vw] shrink-0 md:block" aria-hidden="true" />
                         </div>
                         <div className="mx-auto mt-10 hidden w-full max-w-[1400px] px-8 md:block" aria-hidden="true">
-                            <div className="h-px w-full bg-white/10">
+                            <div className="h-px w-full bg-paper/10">
                                 <div className="featured-progress h-px origin-left scale-x-0 bg-lime" />
                             </div>
                         </div>
@@ -262,7 +262,7 @@ export default function Home() {
             {/* ───────────── ALL WORK ───────────── */}
             <WorkIndex projects={projects} />
 
-            <Marquee items={[site.site_name, 'Design', 'Develop', 'Deploy', 'Maintain']} reverse className="border-y border-white/10 py-5 font-display text-2xl text-paper/40 md:text-4xl" />
+            <Marquee items={[site.site_name, 'Design', 'Develop', 'Deploy', 'Maintain']} reverse className="border-y border-paper/10 py-5 font-display text-2xl text-paper/40 md:text-4xl" />
 
             <ContactSection />
         </div>
@@ -341,7 +341,7 @@ function WorkIndex({ projects }: { projects: Project[] }) {
                                     type="button"
                                     aria-pressed={filter === c}
                                     onClick={() => pick(c)}
-                                    className="rounded-full border border-white/15 px-4 py-2 text-sm text-paper/70 transition hover:border-paper hover:text-paper aria-pressed:border-lime aria-pressed:bg-lime aria-pressed:text-ink"
+                                    className="rounded-full border border-paper/15 px-4 py-2 text-sm text-paper/70 transition hover:border-paper hover:text-paper aria-pressed:border-lime aria-pressed:bg-lime aria-pressed:text-dark"
                                 >
                                     {c ?? 'ทั้งหมด'}
                                 </button>
@@ -350,9 +350,9 @@ function WorkIndex({ projects }: { projects: Project[] }) {
                     )}
                 </div>
 
-                <ul className="border-t border-white/10" onPointerLeave={() => setHover(null)}>
+                <ul className="border-t border-paper/10" onPointerLeave={() => setHover(null)}>
                     {list.map((p) => (
-                        <li key={p.id} className="work-row border-b border-white/10">
+                        <li key={p.id} className="work-row border-b border-paper/10">
                             <Link
                                 href={`/projects/${p.slug}`}
                                 onPointerEnter={() => setHover(p)}
@@ -370,7 +370,7 @@ function WorkIndex({ projects }: { projects: Project[] }) {
                                 <span className="hidden truncate text-sm text-mute md:block">{p.category}</span>
                                 <span className="hidden truncate font-mono text-xs text-mute md:block">{p.host}</span>
                                 <span
-                                    className="grid h-10 w-10 place-items-center rounded-full border border-white/15 transition-all duration-500 ease-out-expo group-hover:rotate-45 group-hover:border-transparent group-hover:text-ink md:h-12 md:w-12"
+                                    className="grid h-10 w-10 place-items-center rounded-full border border-paper/15 transition-all duration-500 ease-out-expo group-hover:rotate-45 group-hover:border-transparent group-hover:text-dark md:h-12 md:w-12"
                                     style={{ ['--a' as string]: p.accent }}
                                     aria-hidden="true"
                                 >

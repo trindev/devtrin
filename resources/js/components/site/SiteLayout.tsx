@@ -4,6 +4,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { ArrowUpRight } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Magnetic from './Magnetic';
+import DisplayControls from '@/components/DisplayControls';
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
     const { site, auth } = usePage<SharedProps>().props;
@@ -48,7 +49,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
 
     return (
         <div className="site min-h-screen">
-            <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-lg focus:bg-lime focus:px-4 focus:py-2 focus:text-ink">
+            <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-lg focus:bg-lime focus:px-4 focus:py-2 focus:text-dark">
                 ข้ามไปเนื้อหา
             </a>
             <header
@@ -70,8 +71,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
                             </li>
                         ))}
                     </ul>
+                    <DisplayControls tone="site" className="hidden md:flex" />
                     {site.availability && (
-                        <span className="hidden items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-paper/80 sm:inline-flex">
+                        <span className="hidden items-center gap-2 rounded-full border border-paper/10 px-3 py-1.5 text-xs text-paper/80 sm:inline-flex">
                             <span className="relative flex h-2 w-2">
                                 <span className="ping-soft absolute inline-flex h-full w-full rounded-full bg-lime" />
                                 <span className="relative inline-flex h-2 w-2 rounded-full bg-lime" />
@@ -97,16 +99,17 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
                     aria-hidden={!open}
                 >
                     {links.map(([hash, label]) => (
-                        <a key={hash} href={`/${hash}`} onClick={go(hash)} tabIndex={open ? 0 : -1} className="border-b border-white/10 py-4 font-display text-5xl font-semibold">
+                        <a key={hash} href={`/${hash}`} onClick={go(hash)} tabIndex={open ? 0 : -1} className="border-b border-paper/10 py-4 font-display text-5xl font-semibold">
                             {label}
                         </a>
                     ))}
+                    {open && <DisplayControls tone="site" className="mt-8" />}
                 </div>
             </header>
 
             <main id="main">{children}</main>
 
-            <footer className="border-t border-white/10">
+            <footer className="border-t border-paper/10">
                 <div className="mx-auto flex max-w-[1400px] flex-col gap-4 px-4 py-8 text-sm text-mute md:flex-row md:items-center md:px-8">
                     <span>
                         © {new Date().getFullYear()} {site.site_name}
@@ -124,7 +127,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
                     <button
                         type="button"
                         onClick={() => scrollToTarget(0)}
-                        className="self-start rounded-full border border-white/10 px-4 py-2 text-paper/80 transition hover:border-lime hover:text-lime md:self-auto"
+                        className="self-start rounded-full border border-paper/10 px-4 py-2 text-paper/80 transition hover:border-lime hover:text-lime md:self-auto"
                     >
                         กลับขึ้นบน ↑
                     </button>
@@ -185,7 +188,7 @@ export function ContactSection() {
                                 href={primary}
                                 target={primary.startsWith('http') ? '_blank' : undefined}
                                 rel="noopener noreferrer"
-                                className="group inline-flex h-16 items-center gap-3 rounded-full bg-lime px-8 text-lg font-semibold text-ink transition-transform hover:scale-[1.03] md:h-20 md:px-12 md:text-xl"
+                                className="group inline-flex h-16 items-center gap-3 rounded-full bg-lime px-8 text-lg font-semibold text-dark transition-transform hover:scale-[1.03] md:h-20 md:px-12 md:text-xl"
                             >
                                 คุยกันเลย
                                 <ArrowUpRight className="h-6 w-6 transition-transform duration-500 ease-out-expo group-hover:rotate-45" aria-hidden="true" />
@@ -201,7 +204,7 @@ export function ContactSection() {
                                     href={c.href}
                                     target={c.href.startsWith('http') ? '_blank' : undefined}
                                     rel="noopener noreferrer"
-                                    className="inline-flex rounded-full border border-white/15 px-5 py-2.5 text-sm text-paper/80 transition hover:border-paper hover:text-paper"
+                                    className="inline-flex rounded-full border border-paper/15 px-5 py-2.5 text-sm text-paper/80 transition hover:border-paper hover:text-paper"
                                 >
                                     {c.label}
                                 </a>

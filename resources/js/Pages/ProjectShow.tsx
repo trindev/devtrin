@@ -70,9 +70,9 @@ export default function ProjectShow() {
                         <Link href="/#work" className="inline-flex items-center gap-2 text-sm text-paper/70 transition hover:text-paper">
                             <ArrowLeft className="h-4 w-4" aria-hidden="true" /> ผลงานทั้งหมด
                         </Link>
-                        {!project.is_published && <span className="rounded-full bg-amber-400 px-3 py-1 text-xs font-medium text-ink">ยังไม่เผยแพร่ (เห็นเฉพาะแอดมิน)</span>}
+                        {!project.is_published && <span className="rounded-full bg-amber-400 px-3 py-1 text-xs font-medium text-dark">ยังไม่เผยแพร่ (เห็นเฉพาะแอดมิน)</span>}
                         {auth.user?.is_admin && (
-                            <Link href={`/admin/projects/${project.slug}/edit`} className="rounded-full border border-white/15 px-3 py-1 text-xs text-paper/70 hover:text-paper">
+                            <Link href={`/admin/projects/${project.slug}/edit`} className="rounded-full border border-paper/15 px-3 py-1 text-xs text-paper/70 hover:text-paper">
                                 แก้ไข
                             </Link>
                         )}
@@ -80,7 +80,7 @@ export default function ProjectShow() {
                     <SplitWords as="h1" text={project.title} className="p-title font-display text-[clamp(3rem,11vw,10rem)] leading-[0.95] font-bold tracking-[-0.035em]" />
                     {project.tagline && <p className="p-fade mt-8 max-w-3xl text-xl leading-relaxed text-paper/75 md:text-2xl">{project.tagline}</p>}
 
-                    <dl className="p-fade mt-14 grid grid-cols-2 gap-x-6 gap-y-8 border-t border-white/10 pt-8 md:grid-cols-4">
+                    <dl className="p-fade mt-14 grid grid-cols-2 gap-x-6 gap-y-8 border-t border-paper/10 pt-8 md:grid-cols-4">
                         <Meta label="หมวด" value={project.category} />
                         <Meta label="ปี" value={project.year} />
                         <Meta
@@ -96,7 +96,7 @@ export default function ProjectShow() {
                             label="ลิงก์"
                             value={
                                 project.url ? (
-                                    <a href={project.url} target="_blank" rel="noopener noreferrer" className="break-all underline decoration-white/30 underline-offset-4 hover:decoration-[var(--accent)]">
+                                    <a href={project.url} target="_blank" rel="noopener noreferrer" className="break-all underline decoration-paper/30 underline-offset-4 hover:decoration-[var(--accent)]">
                                         {project.host}
                                     </a>
                                 ) : null
@@ -118,7 +118,7 @@ export default function ProjectShow() {
                         <p className="mb-5 font-mono text-xs tracking-[0.25em] text-mute uppercase">Stack</p>
                         <ul className="flex flex-wrap gap-2">
                             {(project.tech_stack ?? []).map((t) => (
-                                <li key={t} className="rounded-full border border-white/15 px-4 py-2 text-sm text-paper/85">
+                                <li key={t} className="rounded-full border border-paper/15 px-4 py-2 text-sm text-paper/85">
                                     {t}
                                 </li>
                             ))}
@@ -130,7 +130,7 @@ export default function ProjectShow() {
                                         href={project.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="group inline-flex h-14 items-center gap-3 rounded-full px-7 font-semibold text-ink"
+                                        className="group inline-flex h-14 items-center gap-3 rounded-full px-7 font-semibold text-dark"
                                         style={{ backgroundColor: project.accent }}
                                     >
                                         เปิดเว็บไซต์
@@ -143,7 +143,7 @@ export default function ProjectShow() {
                                     href={project.repo_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex h-14 items-center gap-2 rounded-full border border-white/20 px-6 text-paper transition hover:border-paper"
+                                    className="inline-flex h-14 items-center gap-2 rounded-full border border-paper/20 px-6 text-paper transition hover:border-paper"
                                 >
                                     <Code className="h-5 w-5" aria-hidden="true" /> Source
                                 </a>
@@ -178,7 +178,7 @@ export default function ProjectShow() {
             )}
 
             {next && (
-                <Link href={`/projects/${next.slug}`} className="p-next group block overflow-hidden border-t border-white/10 px-4 py-20 md:px-8 md:py-32">
+                <Link href={`/projects/${next.slug}`} className="p-next group block overflow-hidden border-t border-paper/10 px-4 py-20 md:px-8 md:py-32">
                     <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-8">
                         <div className="min-w-0">
                             <p className="mb-4 font-mono text-xs tracking-[0.25em] text-mute uppercase">โปรเจกต์ถัดไป</p>
@@ -187,7 +187,7 @@ export default function ProjectShow() {
                             </p>
                         </div>
                         <span
-                            className="grid h-16 w-16 shrink-0 place-items-center rounded-full text-ink transition-transform duration-700 ease-out-expo group-hover:translate-x-2 group-hover:rotate-45 md:h-24 md:w-24"
+                            className="grid h-16 w-16 shrink-0 place-items-center rounded-full text-dark transition-transform duration-700 ease-out-expo group-hover:translate-x-2 group-hover:rotate-45 md:h-24 md:w-24"
                             style={{ backgroundColor: next.accent }}
                             aria-hidden="true"
                         >

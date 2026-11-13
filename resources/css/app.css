@@ -4,6 +4,9 @@
 @source '../js';
 
 
+/* ธีม: <html data-theme="light|dark"> ตั้งโดยสคริปต์ใน app.blade.php ก่อนวาดหน้า (lib/prefs.ts เปลี่ยนตอนกดสวิตช์) */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 @theme {
     --font-sans: 'IBM Plex Sans Thai', 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
     --font-display: 'Bricolage Grotesque', 'IBM Plex Sans Thai', ui-sans-serif, system-ui, sans-serif;
@@ -15,9 +18,23 @@
     --color-paper: #f3f2ee;
     --color-mute: #8d8d96;
     --color-lime: #c8ff3d;
+    /* สีคงที่ ไม่สลับตามธีม — ตัวอักษรบนพื้นสีสด (ปุ่มสี lime / สีประจำโปรเจกต์) */
+    --color-dark: #0a0a0b;
 
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* หน้าบ้านโหมดสว่าง: สลับค่าสีชุดเดียวกัน (ink = พื้น, paper = ตัวอักษร) */
+[data-theme='light'] {
+    --color-ink: #f5f4f0;
+    --color-ink-2: #ecebe5;
+    --color-ink-3: #e2e1da;
+    --color-paper: #131315;
+    --color-mute: #6b6b74;
+    --color-lime: #9ee000;
+    color-scheme: light;
+}
+[data-theme='dark'] { color-scheme: dark; }
 
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
@@ -36,8 +53,8 @@ html.lenis, html.lenis body { height: auto; }
 /* เส้นตาราง + noise ที่พื้นหลัง hero */
 .grid-lines {
     background-image:
-        linear-gradient(to right, rgb(255 255 255 / 0.045) 1px, transparent 1px),
-        linear-gradient(to bottom, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+        linear-gradient(to right, color-mix(in oklab, var(--color-paper) 6%, transparent) 1px, transparent 1px),
+        linear-gradient(to bottom, color-mix(in oklab, var(--color-paper) 6%, transparent) 1px, transparent 1px);
     background-size: 72px 72px;
     mask-image: radial-gradient(ellipse at 50% 40%, black 30%, transparent 75%);
 }

@@ -10,6 +10,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0a0a0b">
+    <script>
+        // ตั้งธีมและขนาดตัวอักษรก่อนวาดหน้า กันจอกระพริบ (ค่าเดียวกับ resources/js/lib/prefs.ts)
+        (function () {
+            var d = document.documentElement, t = null, f = null;
+            try { t = localStorage.getItem('dt-theme'); f = parseFloat(localStorage.getItem('dt-font')); } catch (e) {}
+            if (t !== 'light' && t !== 'dark') {
+                // ยังไม่เคยเลือก: หน้าบ้านใช้ธีมมืดตามดีไซน์ หลังบ้านตามระบบ
+                t = location.pathname.indexOf('/admin') === 0 && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            }
+            d.dataset.theme = t;
+            if (f >= 0.8 && f <= 1.6) d.style.fontSize = (f * 100) + '%';
+        })();
+    </script>
     {{-- meta สำหรับ social preview — ฝั่ง server เพราะ crawler ไม่รัน JavaScript --}}
     <title inertia>{{ $title }}</title>
     <meta name="description" content="{{ $description }}">

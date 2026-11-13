@@ -41,7 +41,7 @@ export default function ProjectArt({
             role="img"
             aria-label={project.title}
         >
-            <div className="grid-lines absolute inset-0 opacity-60" />
+            <div className="grid-lines absolute inset-0 opacity-60" style={{ ['--color-paper' as string]: '#ffffff' }} />
             <span className={clsx('absolute -bottom-[0.18em] -right-[0.04em] font-display leading-none font-extrabold tracking-tighter text-white/90 mix-blend-overlay', imgClassName)} style={{ fontSize: 'clamp(6rem, 22vw, 18rem)' }}>
                 {initials}
             </span>
