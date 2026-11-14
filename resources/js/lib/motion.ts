@@ -62,3 +62,9 @@ export function revealWords(el: Element | null, vars: gsap.TweenVars = {}): gsap
         onComplete: () => el.classList.remove('masking'),
     });
 }
+
+/** หยุด/เดิน smooth scroll ชั่วคราว (ตอนเปิด modal ไม่ให้หน้าด้านหลังเลื่อน) */
+export function setSmoothScrollPaused(paused: boolean) {
+    if (paused) lenis?.stop();
+    else lenis?.start();
+}

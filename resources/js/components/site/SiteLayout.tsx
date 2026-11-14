@@ -1,8 +1,9 @@
 import { gsap, reducedMotion, ScrollTrigger, scrollToTarget, startSmoothScroll, stopSmoothScroll } from '@/lib/motion';
 import type { SharedProps } from '@/types';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { ArrowUpRight } from 'lucide-react';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import AdminLoginModal from './AdminLoginModal';
 import ChatWidget from './ChatWidget';
 import Magnetic from './Magnetic';
 import DisplayControls from '@/components/DisplayControls';
@@ -11,6 +12,19 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
     const { site, auth, flash } = usePage<SharedProps>().props;
     const nav = useRef<HTMLElement>(null);
     const [open, setOpen] = useState(false);
+    const [loginOpen, setLoginOpen] = useState(false);
+    const closeLogin = useCallback(() => setLoginOpen(false), []);
+    const taps = useRef<number[]>([]);
+
+    // ทางเข้าหลังบ้านแบบลับ: แตะ "© ปี ชื่อเว็บ" ที่ footer 5 ครั้งภายใน 3 วินาที
+    const secretTap = () => {
+        const now = Date.now();
+        taps.current = [...taps.current.filter((t) => now - t < 3000), now];
+        if (taps.current.length < 5) return;
+        taps.current = [];
+        if (auth.user?.is_admin) router.visit('/admin');
+        else setLoginOpen(true);
+    };
 
     useEffect(() => {
         startSmoothScroll();
@@ -112,10 +126,11 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
 
             <ChatWidget />
             <SiteFlash text={flash.error || flash.success} />
+            <AdminLoginModal open={loginOpen} onClose={closeLogin} />
 
             <footer className="border-t border-paper/10">
                 <div className="mx-auto flex max-w-[1400px] flex-col gap-4 px-4 py-8 text-sm text-mute md:flex-row md:items-center md:px-8">
-                    <span>
+                    <span onClick={secretTap} className="select-none">
                         © {new Date().getFullYear()} {site.site_name}
                         {site.location && ` · ${site.location}`}
                     </span>
@@ -124,9 +139,11 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
                         {site.github_url && <FooterLink href={site.github_url}>GitHub</FooterLink>}
                         {site.facebook_url && <FooterLink href={site.facebook_url}>Facebook</FooterLink>}
                         {site.line_url && <FooterLink href={site.line_url}>LINE</FooterLink>}
-                        <Link href={auth.user?.is_admin ? '/admin' : '/admin/login'} className="hover:text-paper">
-                            {auth.user?.is_admin ? 'หลังบ้าน' : 'Admin'}
-                        </Link>
+                        {auth.user?.is_admin && (
+                            <Link href="/admin" className="hover:text-paper">
+                                หลังบ้าน
+                            </Link>
+                        )}
                     </div>
                     <button
                         type="button"
