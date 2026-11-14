@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Support\AppVersion;
+use App\Support\OpcacheSwitch;
 use App\Support\ReleaseIntegrity;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
@@ -190,6 +191,7 @@ class SelfUpdater
         }
 
         $this->pruneBackups();
+        OpcacheSwitch::flushStaleCode($target);
     }
 
     private function move(string $from, string $to): void

@@ -26,6 +26,8 @@ class MaintenanceController extends Controller
         'optimize-clear' => ['optimize:clear', [], 'ล้าง cache ทั้งหมด', 'หลังแก้ .env หรือเมื่อค่าที่ตั้งไว้ไม่อัปเดต', 'deploy', null],
         'optimize' => ['optimize', [], 'Cache config/route/view', 'ทำหลังล้าง cache ให้เว็บเร็วขึ้น', 'deploy', null],
         'opcache-reset' => ['devtrin:opcache-reset', [], 'ล้าง OPcache', 'ไฟล์ตรงกับ release แต่ยังเจอ error ชื่อไฟล์หรือฟังก์ชันเพี้ยน', 'fix', null],
+        'opcache-off' => ['devtrin:opcache', ['state' => 'off'], 'ปิด OPcache เฉพาะเว็บนี้', 'แบบเดียวกับ staycool: เลี่ยง OPcache ของ host ที่เต็ม/เสีย แลกกับช้าลงเล็กน้อย (ไม่กระทบเว็บอื่น)', 'fix', 'ปิด OPcache เฉพาะ devtrin? มีผลภายในราว 5 นาที'],
+        'opcache-on' => ['devtrin:opcache', ['state' => 'on'], 'เปิด OPcache กลับ', 'ใช้เมื่อ host เพิ่มหน่วยความจำ OPcache แล้ว', 'fix', null],
     ];
 
     public function show(Request $request, Doctor $doctor, SelfUpdater $updater): View|JsonResponse

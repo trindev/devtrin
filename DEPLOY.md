@@ -131,6 +131,17 @@ GitHub Actions จะรัน test แล้วสร้าง Release `v1.0.1`
 ถ้าเว็บเพี้ยนเพราะ OPcache ของ host (เคยเกิดกับ law-quest บน host เดียวกัน) แอปจะล้าง OPcache แล้วลองใหม่ให้เอง
 ดูประวัติได้ที่ `/_maintenance` ในแถว "กู้คืน OPcache อัตโนมัติ"
 
+## OPcache ของ host เต็ม (แถว OPcache เป็นสีเหลือง)
+
+OPcache ใช้พื้นที่ร่วมกันทุกเว็บบนเครื่อง ถ้าเต็ม (ว่าง 0%) เว็บ Laravel จะเจอ error ชื่อไฟล์/เมธอดเพี้ยนเป็นระยะ
+แถว OPcache ใน `/_maintenance` บอกว่าเป็นส่วนของ devtrin กี่สคริปต์ จากทั้งเครื่องกี่สคริปต์
+
+- **แก้ที่ต้นเหตุ (ต้องมีสิทธิ์ root หรือให้ host ทำ):** เพิ่ม `opcache.memory_consumption=1024`, `opcache.interned_strings_buffer=64`, `opcache.max_accelerated_files=60000` แล้ว restart php-fpm
+- **แก้เฉพาะเว็บนี้ (แบบ staycool):** `/_maintenance` → คำสั่ง "แก้ปัญหา" → **ปิด OPcache เฉพาะเว็บนี้**
+  - ระบบเขียน `public_html/devtrin/.user.ini` (`opcache.enable=0`) มีผลภายใน ~5 นาที ไม่กระทบเว็บอื่น ค่านี้อยู่รอดทุกการอัปเดต
+  - เว็บช้าลงเล็กน้อยต่อ request แต่ไม่เจอ OPcache เสียอีก · เปิดกลับด้วยปุ่ม "เปิด OPcache กลับ" เมื่อ host เพิ่มหน่วยความจำแล้ว
+- ทุกครั้งที่อัปเดต ระบบล้างโค้ดเก่าของ devtrin ออกจาก OPcache ให้เอง (เหมือน staycool)
+
 ## Uptime monitor (ไม่บังคับ)
 
 ```

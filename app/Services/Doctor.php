@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Support\Media;
 use App\Support\OpcacheHeal;
+use App\Support\OpcacheSwitch;
 use App\Support\ReleaseIntegrity;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Support\Carbon;
@@ -82,7 +83,15 @@ class Doctor
                 : [self::OK, number_format($result['checked'])." ไฟล์ตรงทุกไฟล์ · OPcache {$opcache}"];
         });
         $add('แอป', 'OPcache', function () {
-            // host นี้เคยมี OPcache เสียในหน่วยความจำ (law-quest) — หน่วยความจำ/บัฟเฟอร์ข้อความเต็ม เป็นต้นเหตุที่พบบ่อย ดูไว้ก่อนพัง
+            // host นี้เคยมี OPcache เสียในหน่วยความจำ (law-quest, staycool) — หน่วยความจำ/บัฟเฟอร์ข้อความเต็ม เป็นต้นเหตุที่พบบ่อย
+            $fileOff = OpcacheSwitch::disabledByFile();
+            $active = OpcacheSwitch::activeNow();
+            if ($fileOff && ! $active) {
+                return [self::OK, 'ปิดเฉพาะเว็บนี้ด้วย .user.ini (แบบเดียวกับ staycool) — ไม่โดน OPcache ของ host ที่เต็ม/เสีย และไม่กระทบเว็บอื่น · เปิดกลับได้ที่ปุ่ม "เปิด OPcache กลับ"'];
+            }
+            if ($fileOff) {
+                return [self::WARN, 'ตั้งปิดใน .user.ini แล้ว รอ PHP อ่านค่าใหม่ (ไม่เกิน '.OpcacheSwitch::cacheTtl().' วินาที) — ถ้าเกิน 10 นาทียังไม่เปลี่ยน แปลว่า host ไม่อ่าน .user.ini'];
+            }
             $s = function_exists('opcache_get_status') ? @opcache_get_status(false) : false;
             if (! $s || ! ($s['opcache_enabled'] ?? false)) {
                 return [self::OK, 'ปิดอยู่ หรือ host ไม่ให้อ่านสถานะ (opcache.restrict_api)'];
@@ -96,16 +105,25 @@ class Doctor
             $stringsFree = $strings && $strings['buffer_size'] ? round($strings['free_memory'] / $strings['buffer_size'] * 100) : null;
             $st = $s['opcache_statistics'] ?? [];
             $cfg = function_exists('opcache_get_configuration') ? (@opcache_get_configuration()['directives'] ?? []) : [];
+            $allScripts = (int) ($st['num_cached_scripts'] ?? 0);
 
-            $detail = sprintf('หน่วยความจำ %s/%s MB (ว่าง %d%%) · เสียเปล่า %s%%%s · hit %s%% · %s สคริปต์ · restart: เต็ม %d, hash %d, สั่งล้าง %d%s',
+            // ส่วนของเว็บนี้ในพื้นที่ที่ใช้ร่วมกับทั้งเครื่อง
+            $share = OpcacheSwitch::share();
+            $mine = $share ? sprintf(' · ของ devtrin %s สคริปต์ (%s MB)', number_format($share['scripts']), $mb($share['bytes'])) : '';
+
+            $detail = sprintf('หน่วยความจำ %s/%s MB (ว่าง %d%%) · เสียเปล่า %s%%%s · hit %s%% · %s สคริปต์ทั้งเครื่อง%s · restart: เต็ม %d, hash %d, สั่งล้าง %d%s',
                 $mb($m['used_memory']), $mb($total), $freePct, $wastedPct,
                 $stringsFree !== null ? " · บัฟเฟอร์ข้อความว่าง {$stringsFree}%" : '',
-                round($st['opcache_hit_rate'] ?? 0, 1), number_format($st['num_cached_scripts'] ?? 0),
+                round($st['opcache_hit_rate'] ?? 0, 1), number_format($allScripts), $mine,
                 $st['oom_restarts'] ?? 0, $st['hash_restarts'] ?? 0, $st['manual_restarts'] ?? 0,
                 array_key_exists('opcache.validate_timestamps', $cfg) ? ' · ตรวจไฟล์ใหม่ '.($cfg['opcache.validate_timestamps'] ? 'ทุก '.($cfg['opcache.revalidate_freq'] ?? '?').' วินาที' : 'ปิด (ต้องล้างเองหลังอัปเดต)') : '');
             $tight = $freePct < 10 || $wastedPct >= 10 || ($stringsFree !== null && $stringsFree < 10) || ($st['oom_restarts'] ?? 0) > 0;
+            if (! $tight) {
+                return [self::OK, $detail];
+            }
+            $others = $share && $allScripts > 0 && $share['scripts'] < $allScripts / 2 ? 'ส่วนใหญ่เป็นของเว็บอื่นบนเครื่อง' : 'ใกล้เต็ม';
 
-            return [$tight ? self::WARN : self::OK, $detail.($tight ? ' — ใกล้เต็ม: กด "ล้าง OPcache" และแจ้ง host เพิ่ม opcache.memory_consumption / interned_strings_buffer' : '')];
+            return [self::WARN, $detail." — พื้นที่ OPcache {$others} แก้ได้ 2 ทาง: กด \"ปิด OPcache เฉพาะเว็บนี้\" ด้านล่าง (แบบ staycool) หรือให้ host เพิ่ม opcache.memory_consumption / interned_strings_buffer"];
         });
         $add('แอป', 'กู้คืน OPcache อัตโนมัติ', function () {
             $state = OpcacheHeal::state();
