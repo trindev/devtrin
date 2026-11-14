@@ -184,13 +184,28 @@ function Mailbox({ folder, folders, list, message, onCompose }: Props & { onComp
 
     useEffect(() => setSelected([]), [folder, list?.page]);
 
+    // เปิดอ่าน = server ตั้ง Seen ให้แล้ว แต่หน้าเว็บโหลดใหม่แค่ message — ทำเครื่องหมายอ่านแล้วบนจอทันที
+    // ไม่ต้องรอดึงรายการ/โฟลเดอร์จาก IMAP ใหม่ (ช้า) · ล้างค่าที่จำไว้เมื่อได้ข้อมูลชุดใหม่จาก server
+    const [readUids, setReadUids] = useState<number[]>([]);
+    const [readCount, setReadCount] = useState<Record<string, number>>({});
+    useEffect(() => setReadUids([]), [list]);
+    useEffect(() => setReadCount({}), [folders]);
+    const isSeen = (m: ListItem) => m.seen || readUids.includes(m.uid);
+    const unreadOf = (f: MailFolder) => Math.max(0, f.unread - (readCount[f.path] ?? 0));
+
     const go = (params: Record<string, string | number | undefined>) => router.get('/admin/mail', params, { preserveScroll: true });
-    const open = (uid: number) =>
+    const open = (uid: number) => {
+        const item = list?.messages.find((m) => m.uid === uid);
+        if (item && !isSeen(item)) {
+            setReadUids((u) => [...u, uid]);
+            setReadCount((c) => ({ ...c, [folder]: (c[folder] ?? 0) + 1 }));
+        }
         router.get(
             '/admin/mail',
             { folder, page: list?.page ?? 1, uid },
             { only: ['message'], preserveState: true, preserveScroll: true },
         );
+    };
     const close = () =>
         router.get('/admin/mail', { folder, page: list?.page ?? 1 }, { only: ['message'], preserveState: true, preserveScroll: true });
     const remove = async (uids: number[]) => {
@@ -230,7 +245,7 @@ function Mailbox({ folder, folders, list, message, onCompose }: Props & { onComp
                                 >
                                     <Icon className="size-4 shrink-0" strokeWidth={1.75} />
                                     <span className="flex-1">{f.label}</span>
-                                    {f.unread > 0 && <span className="font-mono text-xs tabular-nums">{f.unread}</span>}
+                                    {unreadOf(f) > 0 && <span className="font-mono text-xs tabular-nums">{unreadOf(f)}</span>}
                                 </button>
                             );
                         })}
@@ -288,13 +303,13 @@ function Mailbox({ folder, folders, list, message, onCompose }: Props & { onComp
                                             />
                                             <button type="button" onClick={() => open(m.uid)} className="min-w-0 flex-1 text-left">
                                                 <span className="flex items-baseline gap-2">
-                                                    {!m.seen && (
+                                                    {!isSeen(m) && (
                                                         <span
                                                             className="bg-primary size-2 shrink-0 self-center rounded-full"
                                                             aria-label="ยังไม่อ่าน"
                                                         />
                                                     )}
-                                                    <span className={cn('min-w-0 flex-1 truncate text-sm', !m.seen && 'font-medium')}>
+                                                    <span className={cn('min-w-0 flex-1 truncate text-sm', !isSeen(m) && 'font-medium')}>
                                                         {isSent ? `ถึง ${m.to}` : m.from_name || m.from}
                                                     </span>
                                                     <span className="text-muted-foreground shrink-0 text-xs">{shortDate(m.date)}</span>
@@ -302,7 +317,7 @@ function Mailbox({ folder, folders, list, message, onCompose }: Props & { onComp
                                                 <span
                                                     className={cn(
                                                         'flex min-w-0 items-center gap-1 text-sm',
-                                                        m.seen ? 'text-text-2' : 'text-foreground',
+                                                        isSeen(m) ? 'text-text-2' : 'text-foreground',
                                                     )}
                                                 >
                                                     <KindIcon kind={mailKind(m.subject)} />
