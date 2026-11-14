@@ -1,4 +1,5 @@
-import { getJson, sendJson } from '@/lib/http';
+import { AttachButton, AttachPreview, MessageImage, useChatImage } from '@/components/ChatAttachment';
+import { getJson, sendForm } from '@/lib/http';
 import { usePush } from '@/lib/push';
 import type { ChatMessage, SharedProps } from '@/types';
 import { router, usePage } from '@inertiajs/react';
@@ -41,6 +42,7 @@ export default function ChatWidget() {
     const list = useRef<HTMLDivElement>(null);
     const lastId = useRef(0);
     const notify = usePush(user ? push : null);
+    const attach = useChatImage();
 
     // เปิดแชทอัตโนมัติเมื่อกลับมาจาก Google login หรือกดแจ้งเตือน (?chat=open)
     useEffect(() => {
@@ -80,16 +82,18 @@ export default function ChatWidget() {
 
     const send = async () => {
         const body = text.trim();
-        if (!body || sending) return;
+        if ((!body && !attach.image) || sending || attach.preparing) return;
         setSending(true);
         setError(null);
         try {
-            const { message } = await sendJson<{ message: ChatMessage }>('/chat/messages', { body });
+            const { message } = await sendForm<{ message: ChatMessage }>('/chat/messages', { body, image: attach.image });
             lastId.current = Math.max(lastId.current, message.id);
             setMessages((prev) => [...prev, message]);
             setText('');
+            attach.clear();
         } catch (e) {
-            setError((e as { status?: number }).status === 429 ? 'ส่งถี่เกินไป รอสักครู่แล้วลองใหม่' : 'ส่งไม่สำเร็จ ลองใหม่อีกครั้ง');
+            const err = e as { status?: number; message?: string };
+            setError(err.status === 429 ? 'ส่งถี่เกินไป รอสักครู่แล้วลองใหม่' : err.status === 422 ? err.message || 'ส่งไม่สำเร็จ' : 'ส่งไม่สำเร็จ ลองใหม่อีกครั้ง');
         } finally {
             setSending(false);
         }
@@ -126,7 +130,11 @@ export default function ChatWidget() {
                 id="chat-panel"
                 aria-label="แชทกับทีมงาน"
                 hidden={!open}
-                className="fixed inset-x-3 bottom-22 z-40 flex max-h-[min(36rem,calc(100svh-7rem))] flex-col overflow-hidden rounded-3xl border border-paper/10 bg-ink-2 shadow-2xl md:inset-x-auto md:right-6 md:bottom-24 md:w-[24rem]"
+                className={clsx(
+                    'fixed inset-x-3 bottom-22 z-40 flex flex-col overflow-hidden rounded-3xl border border-paper/10 bg-ink-2 shadow-2xl md:inset-x-auto md:right-6 md:bottom-24 md:w-[25rem]',
+                    // login แล้ว = สูงคงที่ (ไม่หดตามจำนวนข้อความ) · ยังไม่ login = สูงตามเนื้อหา
+                    user ? 'h-[min(42rem,calc(100svh-7rem))]' : 'max-h-[calc(100svh-7rem)]',
+                )}
             >
                 <header className="flex items-center gap-3 border-b border-paper/10 px-4 py-3">
                     <img src="/favicon.svg" alt="" className="h-9 w-9 rounded-xl" />
@@ -190,14 +198,21 @@ export default function ChatWidget() {
                             {messages.length === 0 && <p className="py-8 text-center text-sm text-mute">ส่งข้อความแรกได้เลย ทีมงานจะได้รับแจ้งเตือนทันที</p>}
                             {messages.map((m) => (
                                 <div key={m.id} className={clsx('flex flex-col', m.from_admin ? 'items-start' : 'items-end')}>
-                                    <div
-                                        className={clsx(
-                                            'max-w-[85%] rounded-2xl px-3.5 py-2 text-[0.95rem] leading-relaxed break-words whitespace-pre-wrap',
-                                            m.from_admin ? 'rounded-bl-md bg-paper/10' : 'rounded-br-md bg-lime text-dark',
-                                        )}
-                                    >
-                                        {m.body}
-                                    </div>
+                                    {m.image && (
+                                        <div className="mb-1 max-w-[85%]">
+                                            <MessageImage src={m.image} onLoad={() => list.current?.scrollTo({ top: list.current.scrollHeight })} />
+                                        </div>
+                                    )}
+                                    {m.body && (
+                                        <div
+                                            className={clsx(
+                                                'max-w-[85%] rounded-2xl px-3.5 py-2 text-[0.95rem] leading-relaxed break-words whitespace-pre-wrap',
+                                                m.from_admin ? 'rounded-bl-md bg-paper/10' : 'rounded-br-md bg-lime text-dark',
+                                            )}
+                                        >
+                                            {m.body}
+                                        </div>
+                                    )}
                                     <span className="mt-0.5 px-1 text-[11px] text-mute">
                                         {m.from_admin && m.sender ? `${m.sender} · ` : ''}
                                         {timeLabel(m.at)}
@@ -213,7 +228,9 @@ export default function ChatWidget() {
                             className="border-t border-paper/10 p-3"
                         >
                             {error && <p className="mb-2 text-xs text-red-500">{error}</p>}
+                            <AttachPreview chat={attach} className="text-paper" />
                             <div className="flex items-end gap-2">
+                                <AttachButton chat={attach} className="h-11 w-9 text-paper/70 hover:text-paper" />
                                 <textarea
                                     value={text}
                                     onChange={(e) => setText(e.target.value)}
@@ -223,13 +240,14 @@ export default function ChatWidget() {
                                             send();
                                         }
                                     }}
+                                    onPaste={attach.onPaste}
                                     rows={1}
                                     maxLength={2000}
-                                    placeholder="พิมพ์ข้อความ…"
+                                    placeholder="พิมพ์ข้อความ หรือวางรูป…"
                                     aria-label="ข้อความ"
                                     className="max-h-32 min-h-11 flex-1 resize-none rounded-2xl border border-paper/15 bg-ink px-3.5 py-2.5 text-[0.95rem] outline-none focus:border-lime"
                                 />
-                                <button type="submit" disabled={!text.trim() || sending} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-lime text-dark disabled:opacity-40" aria-label="ส่ง">
+                                <button type="submit" disabled={(!text.trim() && !attach.image) || sending || attach.preparing} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-lime text-dark disabled:opacity-40" aria-label="ส่ง">
                                     {sending ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                                 </button>
                             </div>

@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Conversation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ChatTest extends TestCase
@@ -111,5 +113,43 @@ class ChatTest extends TestCase
     public function test_mail_page_renders_without_imap(): void
     {
         $this->actingAs($this->admin())->get('/admin/mail')->assertOk()->assertInertia(fn ($page) => $page->component('Admin/Mail')->where('inbox_configured', false));
+    }
+
+    public function test_image_attachments_are_private_to_the_conversation(): void
+    {
+        Storage::fake('local');
+        $visitor = User::factory()->create();
+        $stranger = User::factory()->create();
+        $admin = $this->admin();
+
+        // รูปอย่างเดียว ไม่มีข้อความ ก็ส่งได้
+        $message = $this->actingAs($visitor)->post('/chat/messages', ['image' => UploadedFile::fake()->image('shot.png', 800, 600)], ['Accept' => 'application/json'])
+            ->assertCreated()->json('message');
+        $this->assertSame('', $message['body']);
+        $this->assertStringStartsWith('/chat/image/', $message['image']);
+
+        $this->actingAs($visitor)->get($message['image'])->assertOk();
+        $this->actingAs($admin)->get($message['image'])->assertOk();
+        $this->actingAs($stranger)->get($message['image'])->assertNotFound();
+        auth()->forgetGuards();
+        $this->getJson($message['image'])->assertUnauthorized(); // ยังไม่ login
+
+        // admin ตอบพร้อมรูป + รายการห้องแสดงตัวอย่างเป็น "รูปภาพ"
+        $conversation = Conversation::firstWhere('user_id', $visitor->id);
+        $this->actingAs($admin)->getJson('/admin/chat/list')->assertJsonPath('conversations.0.last.body', '📷 รูปภาพ');
+        $this->actingAs($admin)->post("/admin/chat/{$conversation->id}/messages", ['body' => 'ดูรูปนี้', 'image' => UploadedFile::fake()->image('r.jpg')], ['Accept' => 'application/json'])->assertCreated();
+
+        // ลบห้อง = ลบไฟล์รูปด้วย
+        $paths = $conversation->messages()->pluck('image_path')->filter()->values();
+        $this->assertCount(2, $paths);
+        $this->actingAs($admin)->delete("/admin/chat/{$conversation->id}");
+        $paths->each(fn ($p) => Storage::disk('local')->assertMissing($p));
+    }
+
+    public function test_message_needs_text_or_image_and_rejects_non_images(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user)->postJson('/chat/messages', ['body' => '   '])->assertUnprocessable();
+        $this->actingAs($user)->post('/chat/messages', ['image' => UploadedFile::fake()->create('x.php', 5, 'application/x-php')], ['Accept' => 'application/json'])->assertUnprocessable();
     }
 }

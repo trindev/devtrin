@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Chat\ChatController as VisitorChat;
 use App\Models\Conversation;
 use App\Support\ChatNotifier;
 use Illuminate\Http\JsonResponse;
@@ -42,11 +43,10 @@ class ChatController extends Controller
 
     public function store(Request $request, Conversation $conversation): JsonResponse
     {
-        $body = trim((string) $request->validate(['body' => ['required', 'string', 'max:4000']])['body']);
-        abort_if($body === '', 422);
+        [$body, $image] = VisitorChat::validated($request, 4000);
 
-        $message = DB::transaction(function () use ($request, $conversation, $body) {
-            $message = $conversation->messages()->create(['user_id' => $request->user()->id, 'from_admin' => true, 'body' => $body]);
+        $message = DB::transaction(function () use ($request, $conversation, $body, $image) {
+            $message = $conversation->messages()->create(['user_id' => $request->user()->id, 'from_admin' => true, 'body' => $body, 'image_path' => $image]);
             $conversation->forceFill(['last_message_at' => now(), 'admin_unread' => 0, 'user_unread' => $conversation->user_unread + 1])->save();
 
             return $message;
@@ -73,7 +73,7 @@ class ChatController extends Controller
                 'email' => $c->user?->email,
                 'avatar' => $c->user?->avatar,
                 'unread' => $c->admin_unread,
-                'last' => $c->latestMessage ? ['body' => $c->latestMessage->body, 'from_admin' => $c->latestMessage->from_admin] : null,
+                'last' => $c->latestMessage ? ['body' => $c->latestMessage->preview(), 'from_admin' => $c->latestMessage->from_admin] : null,
                 'at' => $c->last_message_at?->toIso8601String(),
             ])->all();
     }

@@ -27,7 +27,7 @@ class ChatNotifier
         $name = $conversation->user?->name ?? 'ผู้เข้าชม';
         defer(fn () => rescue(fn () => app(WebPush::class)->send(
             User::where('is_admin', true)->pluck('id'),
-            ['title' => "แชทใหม่จาก {$name}", 'body' => Str::limit($message->body, 140), 'url' => "/admin/chat?c={$conversation->id}", 'tag' => "chat-{$conversation->id}"],
+            ['title' => "แชทใหม่จาก {$name}", 'body' => Str::limit($message->preview(), 140), 'url' => "/admin/chat?c={$conversation->id}", 'tag' => "chat-{$conversation->id}"],
         ), 0));
     }
 
@@ -38,7 +38,7 @@ class ChatNotifier
         }
         defer(fn () => rescue(fn () => app(WebPush::class)->send(
             [$conversation->user_id],
-            ['title' => config('app.name').' ตอบกลับแล้ว', 'body' => Str::limit($message->body, 140), 'url' => '/?chat=open', 'tag' => 'chat'],
+            ['title' => config('app.name').' ตอบกลับแล้ว', 'body' => Str::limit($message->preview(), 140), 'url' => '/?chat=open', 'tag' => 'chat'],
         ), 0));
     }
 }

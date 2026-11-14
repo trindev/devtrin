@@ -53,6 +53,7 @@ export interface SharedProps {
 export interface ChatMessage {
     id: number;
     body: string;
+    image: string | null;
     from_admin: boolean;
     sender: string | null;
     at: string;

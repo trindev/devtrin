@@ -20,3 +20,21 @@ export async function sendJson<T>(url: string, body: unknown, method = 'POST'): 
     }
     return res.json();
 }
+
+/** ส่งแบบ multipart (มีไฟล์แนบ) — ค่า null/undefined ไม่ถูกส่ง */
+export async function sendForm<T>(url: string, fields: Record<string, string | Blob | null | undefined>): Promise<T> {
+    const body = new FormData();
+    Object.entries(fields).forEach(([k, v]) => v != null && body.append(k, v));
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrf(), 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin',
+        body,
+    });
+    if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        const first = data.errors ? (Object.values(data.errors)[0] as string[])[0] : null;
+        throw Object.assign(new Error(first || data.message || `HTTP ${res.status}`), { status: res.status });
+    }
+    return res.json();
+}

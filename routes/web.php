@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [GoogleAuthController::class, 'logout'])->name('logout');
     Route::get('/chat/messages', [ChatController::class, 'index'])->middleware('throttle:120,1')->name('chat.index');
     Route::post('/chat/messages', [ChatController::class, 'store'])->middleware('throttle:20,1')->name('chat.store');
+    Route::get('/chat/image/{message}', [ChatController::class, 'image'])->name('chat.image');
     Route::post('/push/subscribe', [PushController::class, 'subscribe'])->middleware('throttle:20,1')->name('push.subscribe');
     Route::post('/push/unsubscribe', [PushController::class, 'unsubscribe'])->middleware('throttle:20,1')->name('push.unsubscribe');
     Route::post('/push/test', [PushController::class, 'test'])->middleware('throttle:5,1')->name('push.test');

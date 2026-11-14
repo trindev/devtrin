@@ -13,6 +13,14 @@ class Conversation extends Model
 
     protected $casts = ['last_message_at' => 'datetime', 'admin_unread' => 'integer', 'user_unread' => 'integer'];
 
+    protected static function booted(): void
+    {
+        // ลบห้อง = ลบรูปแนบในห้องด้วย (แถวข้อความถูกลบด้วย cascade ซึ่งไม่เรียก event ของ Message)
+        static::deleting(function (Conversation $conversation) {
+            $conversation->messages()->whereNotNull('image_path')->pluck('image_path')->each(fn ($p) => \App\Support\ChatImage::delete($p));
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

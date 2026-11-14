@@ -1,7 +1,8 @@
 import AdminLayout from '@/components/admin/AdminLayout';
 import { PageHeader } from '@/components/admin/ui';
 import { timeLabel, usePoll } from '@/components/site/ChatWidget';
-import { getJson, sendJson } from '@/lib/http';
+import { AttachButton, AttachPreview, MessageImage, useChatImage } from '@/components/ChatAttachment';
+import { getJson, sendForm } from '@/lib/http';
 import type { ChatMessage, SharedProps } from '@/types';
 import { router, usePage } from '@inertiajs/react';
 import clsx from 'clsx';
@@ -105,6 +106,7 @@ function Thread({ conversation, onBack, onSent }: { conversation: Conversation; 
     const [error, setError] = useState<string | null>(null);
     const lastId = useRef(0);
     const list = useRef<HTMLDivElement>(null);
+    const attach = useChatImage();
 
     const load = useCallback(async () => {
         try {
@@ -129,17 +131,18 @@ function Thread({ conversation, onBack, onSent }: { conversation: Conversation; 
 
     const send = async () => {
         const body = text.trim();
-        if (!body || sending) return;
+        if ((!body && !attach.image) || sending || attach.preparing) return;
         setSending(true);
         setError(null);
         try {
-            const { message } = await sendJson<{ message: ChatMessage }>(`/admin/chat/${conversation.id}/messages`, { body });
+            const { message } = await sendForm<{ message: ChatMessage }>(`/admin/chat/${conversation.id}/messages`, { body, image: attach.image });
             lastId.current = Math.max(lastId.current, message.id);
             setMessages((prev) => [...prev, message]);
             setText('');
+            attach.clear();
             onSent();
-        } catch {
-            setError('ส่งไม่สำเร็จ ลองใหม่อีกครั้ง');
+        } catch (e) {
+            setError((e as { status?: number; message?: string }).status === 422 ? (e as Error).message : 'ส่งไม่สำเร็จ ลองใหม่อีกครั้ง');
         } finally {
             setSending(false);
         }
@@ -172,14 +175,21 @@ function Thread({ conversation, onBack, onSent }: { conversation: Conversation; 
                 {loading && <LoaderCircle className="mx-auto h-5 w-5 animate-spin text-zinc-400" />}
                 {messages.map((m) => (
                     <div key={m.id} className={clsx('flex flex-col', m.from_admin ? 'items-end' : 'items-start')}>
-                        <div
-                            className={clsx(
-                                'max-w-[80%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed break-words whitespace-pre-wrap',
-                                m.from_admin ? 'rounded-br-md bg-violet-600 text-white' : 'rounded-bl-md bg-white shadow-sm dark:bg-zinc-800',
-                            )}
-                        >
-                            {m.body}
-                        </div>
+                        {m.image && (
+                            <div className="mb-1 max-w-[80%]">
+                                <MessageImage src={m.image} onLoad={() => list.current?.scrollTo({ top: list.current.scrollHeight })} />
+                            </div>
+                        )}
+                        {m.body && (
+                            <div
+                                className={clsx(
+                                    'max-w-[80%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed break-words whitespace-pre-wrap',
+                                    m.from_admin ? 'rounded-br-md bg-violet-600 text-white' : 'rounded-bl-md bg-white shadow-sm dark:bg-zinc-800',
+                                )}
+                            >
+                                {m.body}
+                            </div>
+                        )}
                         <span className="mt-0.5 px-1 text-[11px] text-zinc-400">
                             {m.from_admin && m.sender ? `${m.sender} · ` : ''}
                             {timeLabel(m.at)}
@@ -195,7 +205,9 @@ function Thread({ conversation, onBack, onSent }: { conversation: Conversation; 
                 className="border-t border-zinc-100 p-3 dark:border-zinc-800"
             >
                 {error && <p className="mb-2 text-xs text-red-600">{error}</p>}
+                <AttachPreview chat={attach} className="text-zinc-500" />
                 <div className="flex items-end gap-2">
+                    <AttachButton chat={attach} className="h-10 w-9 text-zinc-500 hover:text-zinc-900 dark:hover:text-white" />
                     <textarea
                         value={text}
                         onChange={(e) => setText(e.target.value)}
@@ -205,13 +217,14 @@ function Thread({ conversation, onBack, onSent }: { conversation: Conversation; 
                                 send();
                             }
                         }}
+                        onPaste={attach.onPaste}
                         rows={2}
                         maxLength={4000}
                         placeholder="พิมพ์ตอบกลับ… (Enter ส่ง · Shift+Enter ขึ้นบรรทัดใหม่)"
                         aria-label="ข้อความตอบกลับ"
                         className="max-h-40 flex-1 resize-none rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/15 dark:border-zinc-700 dark:bg-zinc-900"
                     />
-                    <button type="submit" disabled={!text.trim() || sending} className="grid h-10 w-10 place-items-center rounded-xl bg-violet-600 text-white disabled:opacity-40" aria-label="ส่ง">
+                    <button type="submit" disabled={(!text.trim() && !attach.image) || sending || attach.preparing} className="grid h-10 w-10 place-items-center rounded-xl bg-violet-600 text-white disabled:opacity-40" aria-label="ส่ง">
                         {sending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                     </button>
                 </div>
