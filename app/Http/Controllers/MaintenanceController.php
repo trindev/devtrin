@@ -141,6 +141,14 @@ class MaintenanceController extends Controller
         return redirect('/_maintenance')->with('status', "อัปเดตเป็น v{$state['version']} สำเร็จ (".implode(', ', $steps).')');
     }
 
+    /** ดูหน้าปิดปรับปรุงแบบที่ผู้เข้าชมเห็น (admin มี cookie ข้าม จึงไม่เห็นเองบนหน้าเว็บ) */
+    public function preview(): \Illuminate\Http\Response
+    {
+        $retry = app()->isDownForMaintenance() ? (app()->maintenanceMode()->data()['retry'] ?? null) : 900;
+
+        return response()->view('errors.503', ['retryAfter' => $retry]);
+    }
+
     public function down(Request $request): RedirectResponse
     {
         $data = $request->validate(['message' => 'nullable|string|max:200', 'retry' => 'nullable|integer|min:60|max:86400']);

@@ -13,10 +13,10 @@ if ($guarded) {
 }
 
 // Determine if the application is in maintenance mode...
-// หน้า /_maintenance (รวมขั้นจบการอัปเดต) และ /app-version ข้ามหน้า 503 สำเร็จรูป ให้ Laravel ตัดสินเอง
+// หน้า /_maintenance (รวมขั้นจบการอัปเดต), /app-version และ /admin/login ข้ามหน้า 503 สำเร็จรูป ให้ Laravel ตัดสินเอง
 // (ไฟล์ down ที่เวอร์ชันเก่าเขียนไว้อาจไม่มี except — ดู App\Support\MaintenanceSwitch::EXCEPT)
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-$bypass = $path === '/_maintenance' || str_starts_with($path, '/_maintenance/') || $path === '/app-version';
+$bypass = $path === '/_maintenance' || str_starts_with($path, '/_maintenance/') || $path === '/app-version' || $path === '/admin/login';
 if (! $bypass && file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
     require $maintenance;
 }

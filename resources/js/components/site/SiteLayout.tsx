@@ -5,8 +5,10 @@ import { ArrowUpRight } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import AdminLoginModal from './AdminLoginModal';
 import ChatWidget from './ChatWidget';
+import CursorBubble from './home/CursorBubble';
 import Magnetic from './Magnetic';
 import DisplayControls from '@/components/DisplayControls';
+import MaintenanceBanner from '@/components/MaintenanceBanner';
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
     const { site, auth, flash } = usePage<SharedProps>().props;
@@ -127,6 +129,8 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             <ChatWidget />
             <SiteFlash text={flash.error || flash.success} />
             <AdminLoginModal open={loginOpen} onClose={closeLogin} />
+            <MaintenanceBanner tone="site" />
+            <CursorBubble />
 
             <footer className="border-t border-paper/10">
                 <div className="mx-auto flex max-w-[1400px] flex-col gap-4 px-4 py-8 text-sm text-mute md:flex-row md:items-center md:px-8">

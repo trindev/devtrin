@@ -13,11 +13,17 @@ use Illuminate\Foundation\Exceptions\RegisterErrorViewPaths;
 class MaintenanceSwitch
 {
     /**
-     * path ที่ต้องเข้าได้แม้ปิดเว็บอยู่ (หน้า doctor, ขั้นจบการอัปเดต, เช็กเวอร์ชัน)
+     * path ที่ต้องเข้าได้แม้ปิดเว็บอยู่ (หน้า doctor, ขั้นจบการอัปเดต, เช็กเวอร์ชัน, หน้า login หลังบ้าน — ไม่งั้น admin ที่ไม่มี cookie จะเข้าไปเปิดเว็บไม่ได้)
      * ต้องใส่ในไฟล์ down ด้วย — storage/framework/maintenance.php ส่งหน้า 503 ก่อน Laravel บูต
      * โดยดูแค่ except ในไฟล์นี้ ไม่ได้ดู except ของ middleware
      */
-    public const EXCEPT = ['_maintenance', '_maintenance/*', 'app-version'];
+    public const EXCEPT = ['_maintenance', '_maintenance/*', 'app-version', 'admin/login'];
+
+    /** รหัส bypass ของการปิดรอบนี้ — admin ที่ login ระหว่างปิดเว็บจะถูกพาไป /{secret} เพื่อรับ cookie เข้าเว็บได้ */
+    public static function secret(): ?string
+    {
+        return app()->isDownForMaintenance() ? (app()->maintenanceMode()->data()['secret'] ?? null) : null;
+    }
 
     public static function down(?string $secret = null, ?int $retry = null): void
     {

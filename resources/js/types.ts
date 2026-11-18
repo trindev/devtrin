@@ -43,6 +43,7 @@ export interface SharedProps {
     google: boolean;
     push: string | null;
     adminBadges: { chat: number } | null;
+    maintenance: boolean;
     site: SiteSettings;
     flash: { success: string | null; error: string | null };
     app: { version: string };

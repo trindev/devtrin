@@ -460,6 +460,7 @@
                     <form method="POST" action="/_maintenance/up" class="form-foot" style="margin: 0" data-busy="กำลังเปิดเว็บ…" data-confirm="เปิดเว็บให้ผู้เข้าชมใช้งาน?">
                         @csrf
                         <span class="text-2">ปิดปรับปรุงเสร็จแล้ว เปิดเว็บให้ผู้เข้าชมเข้าได้ทันที</span>
+                        <a class="btn" href="/_maintenance/preview" target="_blank" rel="noopener">ดูหน้าที่ผู้เข้าชมเห็น</a>
                         <button class="btn primary">เปิดเว็บ</button>
                     </form>
                 @else
@@ -483,7 +484,8 @@
                             </div>
                         </div>
                         <div class="form-foot">
-                            <span class="muted" style="font-size: 13px">ไม่กรอกข้อความ ผู้เข้าชมจะเห็นข้อความมาตรฐาน</span>
+                            <span class="muted" style="font-size: 13px">ไม่กรอกข้อความ ผู้เข้าชมจะเห็นข้อความมาตรฐาน · หลังปิด คุณยังเห็นเว็บได้ตามปกติ (แถบสีเหลืองจะบอกว่าเว็บปิดอยู่)</span>
+                            <a class="btn" href="/_maintenance/preview" target="_blank" rel="noopener">ดูตัวอย่างหน้าปิดปรับปรุง</a>
                             <button class="btn danger">ปิดเว็บชั่วคราว</button>
                         </div>
                     </form>

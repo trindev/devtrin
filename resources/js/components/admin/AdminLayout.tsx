@@ -1,5 +1,6 @@
 import type { SharedProps } from '@/types';
 import DisplayControls from '@/components/DisplayControls';
+import MaintenanceBanner from '@/components/MaintenanceBanner';
 import { ConfirmHost } from '@/components/ui/confirm-dialog';
 import { Head, Link, usePage } from '@inertiajs/react';
 import clsx from 'clsx';
@@ -128,7 +129,10 @@ export default function AdminLayout({ title, children, wide = false }: { title: 
             </header>
 
             <main className="px-4 py-6 lg:ml-64 lg:px-10 lg:py-10">
-                <div className={clsx('mx-auto', wide ? 'max-w-[90rem]' : 'max-w-5xl')}>{children}</div>
+                <div className={clsx('mx-auto', wide ? 'max-w-[90rem]' : 'max-w-5xl')}>
+                    <MaintenanceBanner tone="admin" />
+                    {children}
+                </div>
             </main>
 
             <ConfirmHost />

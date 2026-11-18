@@ -178,7 +178,7 @@ export default function ProjectShow() {
             )}
 
             {next && (
-                <Link href={`/projects/${next.slug}`} className="p-next group block overflow-hidden border-t border-paper/10 px-4 py-20 md:px-8 md:py-32">
+                <Link href={`/projects/${next.slug}`} data-cursor="ถัดไป" className="p-next group block overflow-hidden border-t border-paper/10 px-4 py-20 md:px-8 md:py-32">
                     <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-8">
                         <div className="min-w-0">
                             <p className="mb-4 font-mono text-xs tracking-[0.25em] text-mute uppercase">โปรเจกต์ถัดไป</p>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\MaintenanceSwitch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +24,7 @@ class AuthController extends Controller
         return Inertia::render('Admin/Login');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|\Symfony\Component\HttpFoundation\Response
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
@@ -48,7 +49,13 @@ class AuthController extends Controller
         }
         $request->session()->regenerate();
 
-        return redirect()->intended(route('admin.dashboard'));
+        // เว็บปิดปรับปรุงอยู่: พาไป /{secret} เพื่อรับ cookie ข้ามหน้าปิดปรับปรุง (ไม่งั้นหลังบ้านก็เข้าไม่ได้)
+        if ($secret = MaintenanceSwitch::secret()) {
+            return Inertia::location(url('/'.$secret));
+        }
+
+        // โหลดเต็มหน้าเสมอ: ปลายทางอาจเป็นหน้า Blade (/_maintenance) ซึ่ง Inertia จะเปิดซ้อนในกรอบถ้า redirect ธรรมดา
+        return Inertia::location(redirect()->intended(route('admin.dashboard'))->getTargetUrl());
     }
 
     public function destroy(Request $request): RedirectResponse

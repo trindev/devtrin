@@ -73,6 +73,7 @@ Route::redirect('/login', '/admin/login')->name('login');
 // ── ศูนย์ดูแลระบบ (doctor) — Blade ล้วน เปิดได้แม้ frontend build เสีย ───
 Route::middleware('maintenance.access')->prefix('_maintenance')->group(function () {
     Route::get('/', [MaintenanceController::class, 'show'])->name('maintenance.show');
+    Route::get('/preview', [MaintenanceController::class, 'preview'])->name('maintenance.preview');
     Route::post('/down', [MaintenanceController::class, 'down'])->name('maintenance.down');
     Route::post('/up', [MaintenanceController::class, 'up'])->name('maintenance.up');
     Route::post('/actions/{action}', [MaintenanceController::class, 'action'])->name('maintenance.action');

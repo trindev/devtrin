@@ -51,6 +51,8 @@ class HandleInertiaRequests extends Middleware
             'google' => GoogleAuthController::enabled(),
             // คีย์สาธารณะสำหรับสมัครรับ push — เฉพาะคนที่ login (ผู้เข้าชมแชท / admin)
             'push' => fn () => $user ? app(WebPush::class)->publicKey() : null,
+            // เว็บปิดปรับปรุงอยู่ไหม — บอกเฉพาะ admin (ที่เข้าเว็บได้เพราะมี cookie ข้าม) เพื่อขึ้นแถบเตือน
+            'maintenance' => fn () => (bool) ($user?->is_admin && app()->isDownForMaintenance()),
             'adminBadges' => fn () => $user?->is_admin ? ['chat' => (int) Conversation::sum('admin_unread')] : null,
             'site' => fn () => Setting::values(),
             'flash' => [
