@@ -115,3 +115,12 @@ html.lenis, html.lenis body { height: auto; }
 @media (prefers-reduced-motion: reduce) {
     .wall-col, .scroll-hint { animation: none; }
 }
+
+/* ฉากซูม: สูง 3 จอเพื่อให้มีระยะเลื่อนระหว่างที่จอถูกตรึง · ลดการเคลื่อนไหว = หนึ่งจอ ไม่ซูม */
+.zoom { height: 300svh; }
+@media (max-width: 767px) { .zoom { height: 240svh; } }
+@media (prefers-reduced-motion: reduce) { .zoom { height: 100svh; } }
+
+/* ตัวอักษรโปร่ง มีแต่เส้นขอบ */
+/* ถมสีพื้นทับด้านใน (paint-order) — ฟอนต์ที่เส้นโครงซ้อนกันจะไม่เห็นเส้นขอบวิ่งตัดในตัวอักษร */
+.text-outline { color: var(--color-ink); -webkit-text-stroke: 3px color-mix(in oklab, var(--color-paper) 55%, var(--color-ink)); paint-order: stroke fill; }

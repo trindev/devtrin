@@ -29,7 +29,9 @@ export default function CoverWall({ projects }: { projects: Project[] }) {
             <div className="wall-shift wall-mask absolute inset-0 [perspective:1600px]">
             <div className="wall-inner absolute -top-[35%] -right-[26%] grid h-[190%] w-[125vw] grid-cols-3 gap-3 [transform:rotateX(22deg)_rotateY(-10deg)_rotateZ(-12deg)] md:-right-[16%] md:w-[66vw] md:gap-5 lg:w-[60vw]">
                 {columns.map((col, i) => (
-                    <div key={i} className={`wall-col ${i % 2 ? 'rev' : ''}`} style={{ ['--dur' as string]: `${46 + i * 12}s` }}>
+                    // wall-lane: ชั้นที่ GSAP เลื่อนตามการ scroll (แต่ละแถวคนละระยะ) · wall-col ด้านใน: วนเองด้วย CSS
+                    <div key={i} className="wall-lane will-change-transform">
+                    <div className={`wall-col ${i % 2 ? 'rev' : ''}`} style={{ ['--dur' as string]: `${46 + i * 12}s` }}>
                         {[0, 1].map((half) => (
                             <div key={half} className="flex flex-col gap-3 pb-3 md:gap-5 md:pb-5">
                                 {col.map((p, j) => (
@@ -43,6 +45,7 @@ export default function CoverWall({ projects }: { projects: Project[] }) {
                                 ))}
                             </div>
                         ))}
+                    </div>
                     </div>
                 ))}
             </div>

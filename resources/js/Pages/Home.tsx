@@ -1,6 +1,9 @@
 import CoverWall from '@/components/site/home/CoverWall';
+import FloatingCovers from '@/components/site/home/FloatingCovers';
 import Intro, { shouldPlayIntro } from '@/components/site/home/Intro';
+import ParallaxBands from '@/components/site/home/ParallaxBands';
 import ShaderBackdrop from '@/components/site/home/ShaderBackdrop';
+import ZoomGallery, { ZOOM_MIN_TILES, zoomTiles } from '@/components/site/home/ZoomGallery';
 import Magnetic from '@/components/site/Magnetic';
 import Marquee from '@/components/site/Marquee';
 import ProjectArt from '@/components/site/ProjectArt';
@@ -45,6 +48,10 @@ export default function Home() {
             .slice(0, 5);
     }, [projects]);
 
+    // ฉากซูมก่อนผลงานเด่น — ต้องมีภาพพอ (ไม่งั้นใช้หัวข้อธรรมดา)
+    const zoom = useMemo(() => zoomTiles(projects, featured[0]), [projects]); // eslint-disable-line react-hooks/exhaustive-deps
+    const showZoom = featured.length > 0 && zoom.length >= ZOOM_MIN_TILES;
+
     // ── hero: เล่นหลังฉากเปิดจบ (หรือทันทีถ้าไม่มีฉากเปิด)
     useGSAP(
         () => {
@@ -70,6 +77,16 @@ export default function Home() {
                 // hero: ข้อความเลื่อนช้ากว่าและจางออก · กำแพงผลงานเลื่อนสวนขึ้น
                 gsap.to('.hero-inner', { yPercent: 18, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
                 gsap.to('.wall', { yPercent: -14, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+                // กำแพงผลงาน: แต่ละแถวเลื่อนคนละระยะ/คนละทิศ = ความลึกแบบ parallax
+                gsap.utils.toArray<HTMLElement>('.wall-lane').forEach((lane, i) => {
+                    gsap.to(lane, { yPercent: [-10, 12, -17][i % 3], ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+                });
+
+                // ชั้น parallax ทั่วไป: data-parallax="ระยะ px" — เลื่อนสวนขึ้นเท่านั้นระหว่างผ่านจอ (ติดลบ = ช้ากว่าหน้า)
+                gsap.utils.toArray<HTMLElement>('[data-parallax]').forEach((el) => {
+                    const d = Number(el.dataset.parallax);
+                    gsap.fromTo(el, { y: d }, { y: -d, ease: 'none', scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } });
+                });
 
                 // about: คำค่อย ๆ สว่างขึ้นตามการเลื่อน
                 gsap.fromTo(
@@ -236,7 +253,10 @@ export default function Home() {
             {/* ───────────── ABOUT ───────────── */}
             <section id="about" className="px-4 py-28 md:px-8 md:py-44">
                 <div className="mx-auto grid max-w-[1400px] gap-16 md:grid-cols-12">
-                    <p className="font-mono text-xs tracking-[0.25em] text-mute uppercase md:col-span-3">About</p>
+                    <div className="relative md:col-span-3">
+                        <p className="relative z-10 font-mono text-xs tracking-[0.25em] text-mute uppercase">About</p>
+                        <FloatingCovers projects={projects.slice(3)} />
+                    </div>
                     <div className="md:col-span-9">
                         <SplitWords
                             as="p"
@@ -277,19 +297,20 @@ export default function Home() {
                 </section>
             )}
 
-            {/* ───────────── FEATURED (การ์ดซ้อนทับ) ───────────── */}
+            {/* ───────────── FEATURED: ฉากซูมนำเข้า → การ์ดซ้อนทับ ───────────── */}
+            {showZoom && <ZoomGallery tiles={zoom} eyebrow="Selected work" title="ผลงานเด่น" note={`${String(featured.length).padStart(2, '0')} โปรเจกต์`} />}
             {featured.length > 0 && (
-                <section className="px-4 pb-10 md:px-8" aria-label="ผลงานเด่น">
+                <section className={showZoom ? 'px-4 pt-10 pb-10 md:px-8 md:pt-16' : 'px-4 pb-10 md:px-8'} aria-label="ผลงานเด่น">
                     <div className="mx-auto max-w-[1400px]">
-                        <div className="mb-10 flex items-end justify-between md:mb-14">
-                            <div>
-                                <p className="mb-4 font-mono text-xs tracking-[0.25em] text-mute uppercase">Selected work</p>
-                                <SplitWords as="h2" text="ผลงานเด่น" className="reveal-heading font-display text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.1] font-bold tracking-tight" />
+                        {!showZoom && (
+                            <div className="mb-10 flex items-end justify-between md:mb-14">
+                                <div>
+                                    <p className="mb-4 font-mono text-xs tracking-[0.25em] text-mute uppercase">Selected work</p>
+                                    <SplitWords as="h2" text="ผลงานเด่น" className="reveal-heading font-display text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.1] font-bold tracking-tight" />
+                                </div>
+                                <p className="hidden font-mono text-xs tracking-[0.2em] text-mute uppercase md:block">{String(featured.length).padStart(2, '0')} โปรเจกต์</p>
                             </div>
-                            <p className="hidden font-mono text-xs tracking-[0.2em] text-mute uppercase md:block">
-                                {String(featured.length).padStart(2, '0')} โปรเจกต์
-                            </p>
-                        </div>
+                        )}
                         {featured.map((p, i) => (
                             <FeaturedCard key={p.id} project={p} index={i} total={featured.length} />
                         ))}
@@ -297,10 +318,11 @@ export default function Home() {
                 </section>
             )}
 
+            {/* ───────────── แถบตัวอักษรยักษ์ เคลื่อนตามการเลื่อน ───────────── */}
+            <ParallaxBands words={['Design', 'Develop', 'Deploy', 'Maintain']} projects={projects} />
+
             {/* ───────────── ALL WORK ───────────── */}
             <WorkIndex projects={projects} filter={filter} onFilter={setFilter} />
-
-            <Marquee items={[site.site_name, 'Design', 'Develop', 'Deploy', 'Maintain']} reverse className="border-y border-paper/10 py-5 font-display text-2xl text-paper/40 md:text-4xl" />
 
             <ContactSection />
 
